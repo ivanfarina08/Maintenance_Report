@@ -79,7 +79,7 @@
 }
 
 .button-create-report:hover {
-    background-color: rgb(101, 123, 224);
+    background-color: rgb(122, 141, 226);
 }
 
 #exportButton{
@@ -89,6 +89,15 @@
 
 #exportButton:hover{
     background-color: #6ab66d;
+}
+
+#executorButton{
+    margin-top: 3px;
+    background-color: #E10B00;
+}
+
+#executorButton:hover{
+    background-color: #A10800;
 }
 
 .button-describe {
@@ -168,6 +177,7 @@ label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
+    font-size: 1em;
 }
 
 button {
@@ -209,6 +219,8 @@ button:hover {
     font-weight: 500;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     letter-spacing: 2px;
+    cursor: pointer;
+    color: white;
 }
 
 #update:hover{
@@ -224,6 +236,62 @@ button:hover {
 
 #delete:hover{
     background-color: #A10800;
+}
+
+.table-container {
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+#table_name{
+    width: 70%;
+}
+
+.elegant-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.elegant-table th, .elegant-table td {
+    padding: 0.7em 0.9em;
+    text-align: left;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.elegant-table thead th {
+    background-color: #000000;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 1em;
+    border-bottom: none;
+}
+
+.elegant-table tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.elegant-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.elegant-table tbody td {
+    font-size: 1em;
+    color: #333;
+}
+
+.elegant-table th:first-child, .elegant-table td:first-child {
+    border-top-left-radius: 10px;
+}
+
+.elegant-table th:last-child, .elegant-table td:last-child {
+    border-top-right-radius: 10px;
+}
+
+#table_action{
+    text-align: center;
 }
 
 .container_data{
@@ -269,10 +337,6 @@ button:hover {
 
 .width-100 {
     width: 100%;
-}
-
-label {
-    font-size: 1em;
 }
 
 .dimensions-form {

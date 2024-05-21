@@ -26,3 +26,10 @@ class MaintenanceReport(models.Model):
     number_people = models.CharField(max_length=15)
     time_spend = models.CharField(max_length=2)
     status = models.CharField(max_length=1, choices=STATUS, blank=False, null=False, default='1')
+
+class Executor(models.Model):
+    name = models.CharField(max_length=50)
+
+class ExecutorReport(models.Model):
+    idExecutor = models.CharField(max_length=2)
+    idReport = models.CharField(max_length=2)

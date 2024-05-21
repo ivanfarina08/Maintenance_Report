@@ -24,6 +24,10 @@
         </div>
 
         <div class="div-button-create-report">
+            <button class="button-create-report" id="executorButton" onclick="redirectManageExecutors()">Manage Executors</button>
+        </div>
+
+        <div class="div-button-create-report">
             <button class="button-create-report" id="exportButton">Export Data to CSV</button>
         </div>
 
@@ -104,6 +108,10 @@
         function loadDescribe(value) {
             localStorage.setItem('id', value);
             document.location.replace("details.html");
+        }
+
+        function redirectManageExecutors() {
+            document.location.replace("manage_executors.html");
         }
 
         document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
