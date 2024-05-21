@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Breakdown Report</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <div class="flex-column">
+                <img id="logo" src="logo.png" alt="GWB Logo">
+                <h1>Maintenance Breakdown Report</h1>
+            </div>
+        </header>
+
+        <div class="div-button-create-report">
+            <a class="button-create-report" href="create.html">Create new report +</a>
+        </div>
+
+        <div class="div-button-create-report">
+            <button class="button-create-report" id="exportButton">Export Data to CSV</button>
+        </div>
+
+        <div class="space-top" id="cardsReports"></div>
+
+        <button id="downloadButton" onclick="downloadReport()">Download</button>
+
+    </div>
+
+    <script>
+        getDataFromAPI();
+        function getDataFromAPI() {
+            // URL da sua API Django
+            var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/';
+
+            // Criação do objeto XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+
+            // Definição da função de callback para lidar com a resposta da requisição
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
+                        var responseData = JSON.parse(xhr.responseText);
+                        createCards(responseData);
+                    } else {
+                        // Se a requisição não for bem-sucedida, lide com o erro aqui
+                        console.error('Erro ao obter dados da API:', xhr.status);
+                    }
+                }
+            };
+
+            // Abre a conexão para fazer a requisição GET para a URL da API
+            xhr.open('GET', apiUrl, true);
+
+            // Envia a requisição
+            xhr.send();
+        }
+
+        function createCards(data) {
+            var cards = document.getElementById('cardsReports');
+            cards.innerHTML = '';
+
+            data.forEach(function (item) {
+                var card = document.createElement('div');
+                card.className = 'card';
+
+                var id = document.createElement('div');
+                id.className = 'card-id';
+                id.textContent = '# ' + item.id;
+
+                var title = document.createElement('div');
+                title.className = 'card-title';
+                title.textContent = item.title;
+
+                var date = document.createElement('div');
+                date.className = 'card-date';
+                date.textContent = 'Date: ' + item.date;
+
+                var time = document.createElement('div');
+                time.className = 'card-time';
+                time.textContent = 'Time: ' + item.time_spend + ' min';
+
+                var button = document.createElement('div');
+                button.className = 'card-button';
+                button.innerHTML = '<a class="button-describe" onclick="loadDescribe(' + item.id + ')">Details</a>';
+
+                card.appendChild(id);
+                card.appendChild(title);
+                card.appendChild(date);
+                card.appendChild(time);
+                card.appendChild(button);
+
+                cards.appendChild(card);
+            });
+        }
+
+        function loadDescribe(value) {
+            localStorage.setItem('id', value);
+            document.location.replace("details.html");
+        }
+
+        document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
+
+        async function exportDataToCSV() {
+            try {
+                // Faça a requisição para a API
+                const response = await fetch('http://127.0.0.1:8000/api/maintenancereport/');
+                const jsonData = await response.json();
+
+                // Transforme os valores da coluna "Shift"
+                const transformedData = jsonData.map(item => {
+                    switch (item.shift) {
+                        case 'M':
+                            item.shift = 'Morning';
+                            break;
+                        case 'A':
+                            item.shift = 'Afternoon';
+                            break;
+                        case 'N':
+                            item.shift = 'Night';
+                            break;
+                    }
+                    switch (item.status) {
+                        case '1':
+                            item.status = 'Create';
+                            break;
+                        case '2':
+                            item.status = 'Atribuída';
+                            break;
+                        case '3':
+                            item.status = 'Executada';
+                            break;
+                        case '4':
+                            item.status = 'Feedback';
+                            break;
+                        case '5':
+                            item.status = 'Concluída';
+                            break;
+                    }
+                    switch (item.code) {
+                        case '1':
+                            item.code = 'Code 1';
+                            break;
+                        case '2':
+                            item.code = 'Code 2';
+                            break;
+                    }
+                    console.log('Transformed Item:', item);
+                    return item;
+                });
+
+                // Converta os dados JSON em CSV
+                const csvData = convertJSONToCSV(transformedData);
+
+                // Crie um link para download do arquivo CSV
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'report.csv';
+
+                // Adicione o link ao DOM e clique nele automaticamente
+                document.body.appendChild(a);
+                a.click();
+
+                // Remova o link do DOM
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error fetching or processing data:', error);
+            }
+        }
+
+        function convertJSONToCSV(jsonData) {
+            // Pegue os cabeçalhos das chaves do primeiro objeto
+            const headers = Object.keys(jsonData[0]);
+            const csvRows = [];
+
+            // Adicione a linha de cabeçalho
+            csvRows.push(headers.join(','));
+
+            // Adicione as linhas de dados
+            for (const row of jsonData) {
+                const values = headers.map(header => {
+                    const escaped = ('' + row[header]).replace(/"/g, '\\"');
+                    return `"${escaped}"`;
+                });
+                csvRows.push(values.join(','));
+            }
+
+            return csvRows.join('\n');
+        }
+
+    </script>
+
+</body>
+
+</html>

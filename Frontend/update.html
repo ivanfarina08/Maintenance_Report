@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Breakdown Report</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <div class="flex-column">
+                <img id="logo" src="logo.png" alt="GWB Logo">
+                <h1>Maintenance Breakdown Report</h1>
+            </div>
+        </header>
+
+        <div class="div-button-create-report">
+            <a class="button-create-report" href="index.html">Return to home</a>
+        </div>
+
+        <form class="space-top" id="reportForm">
+            <div class="width-10">
+                <label for="title">ID:</label>
+                <input class="dimensions-form" type="number" id="id" name="id" disabled>
+            </div>
+
+            <div class="width-100 space-top">
+                <label for="title">Title:</label>
+                <input class="dimensions-form" type="text" id="title" name="title">
+            </div>
+
+            <div class="width-49 space-top">
+                <label for="date">Date:</label>
+                <input class="dimensions-form" type="date" id="date" name="date">
+            </div>
+
+            <div class="width-2"></div>
+
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="shift">Shift:</label>
+                <select class="dimensions-form" id="shift" name="shift">
+                    <option value="">Select Shift</option>
+                    <option value="M">Morning Shift</option>
+                    <option value="A">Afternoon Shift</option>
+                    <option value="N">Night Shift</option>
+                </select>
+            </div>
+
+            <div class="width-49 space-top">
+                <label for="lineMachine">Line or Machine:</label>
+                <input class="dimensions-form" type="text" id="line_machine" name="line_machine">
+            </div>
+
+            <div class="width-2"></div>
+
+            <div class="width-49 space-top flex-column center">
+                <label for="code">Code:</label>
+                <div class="flex-row checkbox-wrapper-25 space-top">
+                    <label id="code1" for="code1">Code 1</label>
+                    <input type="checkbox" id="code" name="code" onclick="checkCodeInterlock()">
+                    <label id="code2" for="code2">Code 2</label>
+                </div>
+            </div>
+
+            <div class="width-100 space-top">
+                <label for="description">Fault Description:</label>
+                <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description"
+                    name="description"></textarea>
+            </div>
+
+            <div class="width-49 space-top">
+                <label for="number_people">Number of People:</label>
+                <input class="dimensions-form" type="number" id="number_people" name="number_people">
+            </div>
+
+            <div class="width-2"></div>
+
+            <div class="width-49 space-top">
+                <label for="time_spend">Time Spent on this Job (minutes):</label>
+                <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend">
+            </div>
+
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="shift">Status:</label>
+                <select class="dimensions-form" id="status" name="status">
+                    <option value="">Select Status</option>
+                    <option value="1">Create</option>
+                    <option value="2">Atribuída</option>
+                    <option value="3">Executada</option>
+                    <option value="4">Feedback</option>
+                    <option value="5">Concluída</option>
+                </select>
+            </div>
+
+            <div class="width-100 space-top flex-row">
+                <button class="width-100 margin-button" id="update" type="submit">Update</button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script>
+        loadDetails();
+        function getDataFromAPI(value) {
+            // URL da sua API Django
+            var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/' + value;
+
+            // Criação do objeto XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+
+            // Definição da função de callback para lidar com a resposta da requisição
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
+                        var responseData = JSON.parse(xhr.responseText);
+                        detailsReport(responseData);
+                    } else {
+                        // Se a requisição não for bem-sucedida, lide com o erro aqui
+                        console.error('Erro ao obter dados da API:', xhr.status);
+                    }
+                }
+            };
+
+            // Abre a conexão para fazer a requisição GET para a URL da API
+            xhr.open('GET', apiUrl, true);
+
+            // Envia a requisição
+            xhr.send();
+        }
+
+        function loadDetails() {
+            var id = localStorage.getItem('id');
+            getDataFromAPI(id);
+        }
+
+        function detailsReport(data) {
+            var id = data.id;
+            var title = data.title;
+            var date = data.date;
+            var shift = data.shift;
+            var line_machine = data.line_machine;
+            var code = data.code;
+            var description = data.description;
+            var number_people = data.number_people;
+            var time_spend = data.time_spend;
+            var status = data.status;
+
+            document.getElementById("id").value = id;
+            document.getElementById("title").value = title;
+            document.getElementById("date").value = date;
+            document.getElementById("shift").value = shift;
+            document.getElementById("line_machine").value = line_machine;
+            firstCheckCode(code);
+            document.getElementById("description").value = description;
+            document.getElementById("number_people").value = number_people;
+            document.getElementById("time_spend").value = time_spend;
+            document.getElementById("status").value = status;
+
+        }
+
+        function checkCodeInterlock() {
+            var code = document.getElementById("code");
+            var code1 = document.getElementById("code1");
+            var code2 = document.getElementById("code2");
+            if (code.checked) {
+                code1.style.display = "none";
+                code2.style.display = "flex";
+            } else {
+                code1.style.display = "flex";
+                code2.style.display = "none";
+            }
+        }
+
+        function firstCheckCode(checkbox) {
+            var code = document.getElementById("code");
+            var code1 = document.getElementById("code1");
+            var code2 = document.getElementById("code2");
+            if (checkbox == 2) {
+                code.checked = true;
+                code1.style.display = "none";
+                code2.style.display = "flex";
+            } else {
+                code1.style.display = "flex";
+                code2.style.display = "none";
+            }
+        }
+
+        async function submitForm(event) {
+            var id = localStorage.getItem('id');
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            var form = document.getElementById("reportForm");
+            var formData = new FormData(form);
+
+            // Verifica o estado da checkbox e ajusta o valor do campo "code" conforme necessário
+            var codeChecked = document.getElementById("code").checked;
+            formData.set("code", codeChecked ? "2" : "1");
+
+            // Prepara os dados para envio na API
+            var data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+                console.log(key + ': ' + value);
+            });
+
+            try {
+                var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/' + id + '/';
+                let response = await fetch(apiUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    let result = await response.json();
+                    console.log("Success:", result);
+                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                } else {
+                    console.error("Error:", response.statusText);
+                    // Ações em caso de erro, como exibir uma mensagem de erro
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
+            }
+        }
+        document.getElementById("reportForm").addEventListener("submit", submitForm);
+
+    </script>
+</body>
+
+</html>

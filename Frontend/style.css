@@ -1,0 +1,406 @@
+*{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#cardsReports {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 25%;
+    height: 28vh;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.658);
+}
+
+.card-title {
+    font-size: 1.25em;
+    margin-bottom: 8px;
+    text-align: center;
+    border-bottom: solid green 1px;
+    border-top: solid green 1px;
+    padding: 0.8em 0em;
+}
+
+.card-id {
+    font-size: 1.25em;
+    font-family: cursive;
+    color: black;
+    margin-bottom: 10px;
+}
+
+.card-date,
+.card-time {
+    font-size: 1em;
+    color: #3d3d3d;
+    margin-top: 1em;
+}
+
+.card-button {
+    position: absolute;
+    /* Make the `describe` text absolute */
+    bottom: 0;
+    /* Position it at the bottom */
+    left: 50%;
+    /* Position it horizontally at the center */
+    transform: translateX(-50%);
+    /* Center it horizontally */
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.div-button-create-report {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.button-create-report {
+    display: inline-block;
+    background-color: rgba(70, 101, 243);
+    width: 100%;
+    text-align: center;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    color: white;
+    font-size: 1.25em;
+    letter-spacing: 1px;
+}
+
+.button-create-report:hover {
+    background-color: rgb(101, 123, 224);
+}
+
+#exportButton{
+    margin-top: 3px;
+    background-color: #4CAF50;
+}
+
+#exportButton:hover{
+    background-color: #6ab66d;
+}
+
+.button-describe {
+    display: block;
+    /* Make the link behave like a block element */
+    padding: 10px 20px;
+    /* Add some padding around the text */
+    border: 1px solid #ccc;
+    /* Add a border around the link */
+    border-radius: 4px;
+    /* Make the corners rounded */
+    background-color: #ffffff;
+    /* Add a background color */
+    color: #333;
+    /* Change the text color */
+    text-decoration: none;
+    /* Remove the default underline */
+    cursor: pointer;
+    /* Make the cursor change to a pointer when hovering over the link */
+    transition: background-color 0.3s ease;
+    /* Add a transition effect for the background color */
+    
+}
+
+.button-describe:hover {
+    background-color: #a1ff766e;
+    /* Change the background color on hover */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: url("image1.png");
+    background-size: cover;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    min-height: 95vh;
+}
+
+#logo {
+    width: 100%;
+    height: fit-content;
+}
+
+header {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: 3em;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+form {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+button {
+    font-size: 1em;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #6ab66d;
+}
+
+#resetButton {
+    background-color: black;
+}
+
+#resetButton:hover {
+    background-color: rgb(85, 85, 85);
+}
+
+.align-left {
+    justify-content: baseline;
+}
+
+.align-right {
+    justify-content: end;
+}
+
+#downloadButton {
+    display: none;
+}
+
+#update{
+    background-color: #4CAF50;
+    font-weight: 500;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    letter-spacing: 2px;
+}
+
+#update:hover{
+    background-color: #6ab66d;
+}
+
+#delete{
+    background-color: #E10B00;
+    font-weight: 00;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    letter-spacing: 2px;
+}
+
+#delete:hover{
+    background-color: #A10800;
+}
+
+.container_data{
+    font-size: 1em;
+    margin: 2em 1em;
+}
+
+.title_data{
+    font-weight: bold;
+}
+
+.line_data{
+    margin-top: 1em;
+}
+
+.margin-button{
+    margin: 0.3em;
+}
+
+.width-2 {
+    width: 2%;
+}
+
+.width-10 {
+    width: 10%;
+}
+
+.width-25 {
+    width: 25%;
+}
+
+.width-49 {
+    width: 49%;
+}
+
+.width-50 {
+    width: 50%;
+}
+
+.width-75 {
+    width: 75%;
+}
+
+.width-100 {
+    width: 100%;
+}
+
+label {
+    font-size: 1em;
+}
+
+.dimensions-form {
+    height: 3.3em;
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.dimensions-form-textarea {
+    height: auto;
+}
+
+.space-top {
+    padding-top: 1em;
+}
+
+#reportForm {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#code2 {
+    display: none;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.checkbox-wrapper-25 input[type="checkbox"] {
+    background-image: -webkit-linear-gradient(hsla(0, 0%, 0%, .1), hsla(0, 0%, 100%, .1)),
+        -webkit-linear-gradient(left, #f66 50%, #6cf 50%);
+    background-size: 100% 100%, 200% 100%;
+    background-position: 0 0, 15px 0;
+    border-radius: 25px;
+    box-shadow: inset 0 1px 4px hsla(0, 0%, 0%, .5),
+        inset 0 0 10px hsla(0, 0%, 0%, .5),
+        0 0 0 1px hsla(0, 0%, 0%, .1),
+        0 -1px 2px 2px hsla(0, 0%, 0%, .25),
+        0 2px 2px 2px hsla(0, 0%, 100%, .75);
+    cursor: pointer;
+    height: 25px;
+    padding-right: 25px;
+    width: 75px;
+    -webkit-appearance: none;
+    -webkit-transition: .25s;
+}
+
+.checkbox-wrapper-25 input[type="checkbox"]:after {
+    background-color: #eee;
+    background-image: -webkit-linear-gradient(hsla(0, 0%, 100%, .1), hsla(0, 0%, 0%, .1));
+    border-radius: 25px;
+    box-shadow: inset 0 1px 1px 1px hsla(0, 0%, 100%, 1),
+        inset 0 -1px 1px 1px hsla(0, 0%, 0%, .25),
+        0 1px 3px 1px hsla(0, 0%, 0%, .5),
+        0 0 2px hsla(0, 0%, 0%, .25);
+    content: '';
+    display: block;
+    height: 25px;
+    width: 50px;
+}
+
+.checkbox-wrapper-25 input[type="checkbox"]:checked {
+    background-position: 0 0, 35px 0;
+    padding-left: 25px;
+    padding-right: 0;
+}
+
+@media (max-width: 600px) {
+    .width-2 {
+        display: none;
+    }
+
+    .width-10 {
+        width: 100%;
+    }
+
+    .width-25 {
+        width: 100%;
+    }
+
+    .width-49 {
+        width: 100%;
+    }
+
+    .width-50 {
+        width: 100%;
+    }
+
+    .width-75 {
+        width: 100%;
+    }
+
+    .flex-row {
+        flex-direction: column;
+    }
+
+    .center {
+        align-items: baseline;
+    }
+
+    .margin-button{
+        margin: 0;
+        margin-top: 0.3em;
+    }
+
+    h1{
+        font-size: 2.5em;
+    }
+
+    .card{
+        width: 100%;
+        height: 40vh;
+        padding: 0.7em;
+    }  
+    
+    .card-title {
+        padding: 0.5em 0px;
+    }
+}
