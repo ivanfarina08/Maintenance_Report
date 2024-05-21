@@ -2,10 +2,10 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-#cardsReports {
+.cardsReports {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: baseline;
 }
 
 .card {
@@ -18,6 +18,7 @@
     height: 28vh;
     position: relative;
     background-color: rgba(255, 255, 255, 0.658);
+    flex-grow: 1;
 }
 
 .card-title {
@@ -58,7 +59,7 @@
 
 .div-button-create-report {
     width: 100%;
-    padding: 0;
+    padding: 2px;
     margin: 0;
     display: flex;
     justify-content: center;
@@ -83,7 +84,6 @@
 }
 
 #exportButton{
-    margin-top: 3px;
     background-color: #4CAF50;
 }
 
@@ -92,7 +92,6 @@
 }
 
 #executorButton{
-    margin-top: 3px;
     background-color: #E10B00;
 }
 
@@ -214,8 +213,7 @@ button:hover {
     display: none;
 }
 
-#update{
-    background-color: #4CAF50;
+#update, .btn-create, .btn-update, #delete, #assign{
     font-weight: 500;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     letter-spacing: 2px;
@@ -223,20 +221,39 @@ button:hover {
     color: white;
 }
 
+#update{
+    background-color: #4CAF50;
+}
+
 #update:hover{
+    background-color: #6ab66d;
+}
+
+.btn-create, #assign{
+    background-color: #4cacaf;
+}
+
+.btn-create:hover, #assign{
+    background-color: #269599;
+}
+
+.btn-update{
+    background-color: #4CAF50;
+}
+
+.btn-update:hover{
     background-color: #6ab66d;
 }
 
 #delete{
     background-color: #E10B00;
-    font-weight: 00;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-    letter-spacing: 2px;
 }
 
 #delete:hover{
     background-color: #A10800;
 }
+
+
 
 .table-container {
     width: 100%;

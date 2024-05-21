@@ -89,17 +89,16 @@
                 <label for="shift">Status:</label>
                 <select class="dimensions-form" id="status" name="status" disabled>
                     <option value="">Select Status</option>
-                    <option value="1">Create</option>
-                    <option value="2">Atribuída</option>
-                    <option value="3">Executada</option>
-                    <option value="4">Feedback</option>
-                    <option value="5">Concluída</option>
+                    <option value="1">Created</option>
+                    <option value="2">Assigned</option>
+                    <option value="3">Completed</option>
                 </select>
             </div>
 
         </form>
 
         <div class="width-100 space-top flex-row">
+            <button class="width-100 margin-button" id="assign" onclick="assaignExecutor()">Assign to executor</button>
             <button class="width-100 margin-button" id="update" onclick="loadUpdate()">Update</button>
             <button class="width-100 margin-button" id="delete" onclick="deleteData()">Delete</button>
         </div>
@@ -182,6 +181,10 @@
 
         function loadUpdate(){
             document.location.replace("update.html");
+        }
+
+        function assaignExecutor(){
+            document.location.replace("assignexecutor.html");
         }
 
         function deleteData() {

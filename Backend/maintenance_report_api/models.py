@@ -2,11 +2,9 @@ from django.db import models
 
 class MaintenanceReport(models.Model):
     STATUS = (
-        ('1', 'Create'),
-        ('2', 'Atribuída'),
-        ('3', 'Executada'),
-        ('4', 'Feedback'),
-        ('5', 'Concluída')
+        ('1', 'Created'),
+        ('2', 'Assigned'),
+        ('3', 'Completed')
     )
     SHIFT = (
         ('M','Morning Shift'),

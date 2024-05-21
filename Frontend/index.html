@@ -19,19 +19,27 @@
             </div>
         </header>
 
-        <div class="div-button-create-report">
-            <a class="button-create-report" href="create.html">Create new report +</a>
+        <div class="flex-row">
+            <div class="div-button-create-report">
+                <a class="button-create-report" href="create.html">Create new report +</a>
+            </div>
+
+            <div class="div-button-create-report">
+                <button class="button-create-report" id="exportButton">Export Data to CSV</button>
+            </div>
+
+            <div class="div-button-create-report">
+                <button class="button-create-report" id="executorButton" onclick="redirectManageExecutors()">Manage
+                    Executors</button>
+            </div>
         </div>
 
-        <div class="div-button-create-report">
-            <button class="button-create-report" id="executorButton" onclick="redirectManageExecutors()">Manage Executors</button>
-        </div>
-
-        <div class="div-button-create-report">
-            <button class="button-create-report" id="exportButton">Export Data to CSV</button>
-        </div>
-
-        <div class="space-top" id="cardsReports"></div>
+        <h2>Created</h2>
+        <div class="space-top cardsReports" id="div-created"></div>
+        <h2>Assigned</h2>
+        <div class="space-top cardsReports" id="div-assigned"></div>
+        <h2>Completed</h2>
+        <div class="space-top cardsReports" id="div-completed"></div>
 
         <button id="downloadButton" onclick="downloadReport()">Download</button>
 
@@ -39,6 +47,7 @@
 
     <script>
         getDataFromAPI();
+        let reports = [];
         function getDataFromAPI() {
             // URL da sua API Django
             var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/';
@@ -68,8 +77,9 @@
         }
 
         function createCards(data) {
-            var cards = document.getElementById('cardsReports');
-            cards.innerHTML = '';
+            var created = document.getElementById('div-created');
+            var assigned = document.getElementById('div-assigned');
+            var completed = document.getElementById('div-completed');
 
             data.forEach(function (item) {
                 var card = document.createElement('div');
@@ -101,7 +111,19 @@
                 card.appendChild(time);
                 card.appendChild(button);
 
-                cards.appendChild(card);
+                switch (item.status) {
+                    case '1':
+                        created.appendChild(card);
+                        break;
+
+                    case '2':
+                        assigned.appendChild(card);
+                        break;
+
+                    case '3':
+                        completed.appendChild(card);
+                        break;
+                }
             });
         }
 

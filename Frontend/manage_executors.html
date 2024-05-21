@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
 <body>
@@ -29,15 +27,15 @@
 
         <div class="space-top flex-column">
             <h2>Create or Update executor</h2>
-            <form action="" class="flex-row">
-                <input type="hidden" name="id">
+            <form action="" class="flex-row" id="reportForm">
+                <input type="hidden" name="id" id="id_hidden">
                 <div class="width-75">
-                    <input class="dimensions-form" type="text" id="name" name="name" placeholder="Executor's name" maxlength="45">
+                    <input class="dimensions-form" type="text" id="name" name="name" placeholder="Executor's name"
+                        maxlength="45">
                     <div class="char-count" id="charCount">0/45</div>
                 </div>
                 <div class="width-25">
-                    <input type="submit" value="Create" class="width-100 dimensions-form" id="update"
-                        onclick="loadUpdate()">
+                    <input type="submit" value="Create" class="width-100 dimensions-form btn-create" id="btn-executor">
                 </div>
             </form>
         </div>
@@ -45,62 +43,15 @@
         <div class="space-top">
             <h2>Executor's table</h2>
             <div class="table-container">
-                <table class="elegant-table">
+                <table class="elegant-table" id="elegantTable">
                     <thead>
                         <tr>
                             <th id="table_name">Name</th>
                             <th id="table_action">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Data 1</td>
-                            <td class="center">
-                                <button id="update">
-                                    <span class="material-symbols-outlined">
-                                        edit_square
-                                    </span>
-                                </button>
-                                <div class="width-2"></div>
-                                <button id="delete">
-                                    <span class="material-symbols-outlined">
-                                        delete
-                                    </span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Data 1</td>
-                            <td class="center">
-                                <button id="update">
-                                    <span class="material-symbols-outlined">
-                                        edit_square
-                                    </span>
-                                </button>
-                                <div class="width-2"></div>
-                                <button id="delete">
-                                    <span class="material-symbols-outlined">
-                                        delete
-                                    </span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Data 1</td>
-                            <td class="center">
-                                <button id="update">
-                                    <span class="material-symbols-outlined">
-                                        edit_square
-                                    </span>
-                                </button>
-                                <div class="width-2"></div>
-                                <button id="delete">
-                                    <span class="material-symbols-outlined">
-                                        delete
-                                    </span>
-                                </button>
-                            </td>
-                        </tr>
+                    <tbody id="tbody">
+
                     </tbody>
                 </table>
             </div>
@@ -110,18 +61,173 @@
 
     <script>
         const input = document.getElementById('name');
-    const charCount = document.getElementById('charCount');
+        const charCount = document.getElementById('charCount');
 
-    input.addEventListener('input', () => {
-        const length = input.value.length;
-        charCount.textContent = `${length}/45`;
+        input.addEventListener('input', () => {
+            const length = input.value.length;
+            charCount.textContent = `${length}/45`;
 
-        if (length > 45) {
-            charCount.classList.add('over-limit');
-        } else {
-            charCount.classList.remove('over-limit');
+            if (length > 45) {
+                charCount.classList.add('over-limit');
+            } else {
+                charCount.classList.remove('over-limit');
+            }
+        });
+
+        getDataFromAPI();
+        let executors = new Map();
+        function getDataFromAPI() {
+            // URL da sua API Django
+            var apiUrl = 'http://127.0.0.1:8000/api/executor/';
+
+            // Criação do objeto XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+
+            // Definição da função de callback para lidar com a resposta da requisição
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
+                        var responseData = JSON.parse(xhr.responseText);
+                        addInTable(responseData);
+                    } else {
+                        // Se a requisição não for bem-sucedida, lide com o erro aqui
+                        console.error('Erro ao obter dados da API:', xhr.status);
+                    }
+                }
+            };
+
+            // Abre a conexão para fazer a requisição GET para a URL da API
+            xhr.open('GET', apiUrl, true);
+
+            // Envia a requisição
+            xhr.send();
         }
-    });
+
+        function addInTable(data) {
+            const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
+            data.forEach(item => {
+                executors.set(item.id, item.name);
+                const newRow = table.insertRow();
+                const newCell1 = newRow.insertCell(0);
+                const newCell2 = newRow.insertCell(1);
+
+                newCell1.textContent = item.name; // Replace 'column1' with actual data field
+                newCell2.className = 'center'
+                newCell2.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
+                    '<span class="material-symbols-outlined">' +
+                    'edit_square' +
+                    '</span>' +
+                    '</button>' +
+                    '<div class="width-2"></div>' +
+                    '<button id="delete" onclick="deleteData(' + item.id + ')">' +
+                    '<span class="material-symbols-outlined">' +
+                    'delete' +
+                    '</span>' +
+                    '</button>';
+            });
+
+            // Alternate row coloring
+            const rows = table.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = (i % 2 === 0) ? '#f9f9f9' : '#ffffff';
+            }
+        }
+
+        let updateForm = false;
+        async function submitForm(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            var form = document.getElementById("reportForm");
+            var formData = new FormData(form);
+            var id = document.getElementById('id_hidden').textContent;
+
+            // Prepara os dados para envio na API
+            var data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            if (updateForm) {
+                try {
+                    let response = await fetch("http://127.0.0.1:8000/api/executor/" + id + "/", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        let result = await response.json();
+                        console.log("Success:", result);
+                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                    } else {
+                        console.error("Error:", response.statusText);
+                        // Ações em caso de erro, como exibir uma mensagem de erro
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    // Ações em caso de erro de rede ou outros
+                }
+            }
+            else {
+                try {
+                    let response = await fetch("http://127.0.0.1:8000/api/executor/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        let result = await response.json();
+                        console.log("Success:", result);
+                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                    } else {
+                        console.error("Error:", response.statusText);
+                        // Ações em caso de erro, como exibir uma mensagem de erro
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    // Ações em caso de erro de rede ou outros
+                }
+            }
+        }
+
+        document.getElementById("reportForm").addEventListener("submit", submitForm);
+
+        function deleteData(id) {
+            try {
+                var apiUrl = 'http://127.0.0.1:8000/api/executor/' + id + '/';
+                let response = fetch(apiUrl, {
+                    method: "DELETE"
+                });
+
+                if (response.ok) {
+                    let result = response.json();
+                    console.log("Success:", result);
+                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                } else {
+                    console.error("Error:", response.statusText);
+                    // Ações em caso de erro, como exibir uma mensagem de erro
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
+            }
+        }
+
+        function updateData(id) {
+            document.getElementById("id_hidden").textContent = id;
+            document.getElementById("name").value = executors.get(id);
+            console.log(executors);
+            document.getElementById("btn-executor").value = 'Update';
+            document.getElementById("btn-executor").className = 'width-100 dimensions-form btn-update'
+
+            updateForm = true;
+        }
     </script>
 
 </body>

@@ -31,7 +31,8 @@
 
             <div class="width-100 space-top">
                 <label for="title">Title:</label>
-                <input class="dimensions-form" type="text" id="title" name="title">
+                <input class="dimensions-form" type="text" id="title" name="title" maxlength="45">
+                <div class="char-count" id="charCount">0/45</div>
             </div>
 
             <div class="width-49 space-top">
@@ -84,18 +85,7 @@
                 <label for="time_spend">Time Spent on this Job (minutes):</label>
                 <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend">
             </div>
-
-            <div class="width-49 div-dimensions-form space-top">
-                <label for="shift">Status:</label>
-                <select class="dimensions-form" id="status" name="status">
-                    <option value="">Select Status</option>
-                    <option value="1">Create</option>
-                    <option value="2">Atribuída</option>
-                    <option value="3">Executada</option>
-                    <option value="4">Feedback</option>
-                    <option value="5">Concluída</option>
-                </select>
-            </div>
+            <input type="hidden" name="status" id="status">
 
             <div class="width-100 space-top flex-row">
                 <button class="width-100 margin-button" id="update" type="submit">Update</button>
@@ -106,6 +96,20 @@
     </div>
 
     <script>
+        const input = document.getElementById('title');
+        const charCount = document.getElementById('charCount');
+
+        input.addEventListener('input', () => {
+            const length = input.value.length;
+            charCount.textContent = `${length}/45`;
+
+            if (length > 45) {
+                charCount.classList.add('over-limit');
+            } else {
+                charCount.classList.remove('over-limit');
+            }
+        });
+
         loadDetails();
         function getDataFromAPI(value) {
             // URL da sua API Django
