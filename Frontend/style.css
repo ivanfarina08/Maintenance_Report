@@ -120,7 +120,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: url("image1.png");
+    background: url("img/image1.png");
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.6);
 }
