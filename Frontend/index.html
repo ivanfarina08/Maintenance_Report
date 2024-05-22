@@ -125,7 +125,7 @@
 
         function transformData(item) {
             const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
-            const statuses = { '1': 'Create', '2': 'Atribuída', '3': 'Executada', '4': 'Feedback', '5': 'Concluída' };
+            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
             const codes = { '1': 'Code 1', '2': 'Code 2' };
 
             item.shift = shifts[item.shift] || item.shift;
