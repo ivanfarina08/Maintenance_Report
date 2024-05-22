@@ -9,9 +9,7 @@
 </head>
 
 <body>
-
     <div class="container">
-
         <header>
             <div class="flex-column">
                 <img id="logo" src="img/logo.png" alt="GWB Logo">
@@ -29,208 +27,141 @@
             </div>
 
             <div class="div-button-create-report">
-                <button class="button-create-report" id="executorButton" onclick="redirectManageExecutors()">Manage
-                    Executors</button>
+                <button class="button-create-report" id="executorButton">Manage Executors</button>
             </div>
         </div>
 
-        <h2>Created</h2>
-        <div class="space-top cardsReports" id="div-created"></div>
-        <h2>Assigned</h2>
-        <div class="space-top cardsReports" id="div-assigned"></div>
-        <h2>Completed</h2>
-        <div class="space-top cardsReports" id="div-completed"></div>
+        <h2 class="space-top">Open</h2>
+        <hr>
+        <div class="cardsReports" id="div-created"></div>
+        <h2>Check</h2>
+        <hr>
+        <div class="cardsReports" id="div-assigned"></div>
+        <h2>Closed</h2>
+        <hr>
+        <div class="cardsReports" id="div-completed"></div>
 
-        <button id="downloadButton" onclick="downloadReport()">Download</button>
-
+        <button id="downloadButton">Download</button>
     </div>
 
     <script>
-        getDataFromAPI();
-        let reports = [];
-        function getDataFromAPI() {
-            // URL da sua API Django
-            var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/';
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchReports();
 
-            // Criação do objeto XMLHttpRequest
-            var xhr = new XMLHttpRequest();
+            document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
+            document.getElementById('executorButton').addEventListener('click', () => {
+                window.location.href = "manage_executors.html";
+            });
+        });
 
-            // Definição da função de callback para lidar com a resposta da requisição
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
-                        var responseData = JSON.parse(xhr.responseText);
-                        createCards(responseData);
-                    } else {
-                        // Se a requisição não for bem-sucedida, lide com o erro aqui
-                        console.error('Erro ao obter dados da API:', xhr.status);
-                    }
-                }
-            };
-
-            // Abre a conexão para fazer a requisição GET para a URL da API
-            xhr.open('GET', apiUrl, true);
-
-            // Envia a requisição
-            xhr.send();
+        async function fetchReports() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/maintenancereports/');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                createCards(data);
+            } catch (error) {
+                console.error('Erro ao obter dados da API:', error);
+            }
         }
 
         function createCards(data) {
-            var created = document.getElementById('div-created');
-            var assigned = document.getElementById('div-assigned');
-            var completed = document.getElementById('div-completed');
+            const statusContainers = {
+                1: document.getElementById('div-created'),
+                2: document.getElementById('div-assigned'),
+                3: document.getElementById('div-completed')
+            };
 
-            data.forEach(function (item) {
-                var card = document.createElement('div');
+            data.forEach(item => {
+                const card = document.createElement('div');
                 card.className = 'card';
 
-                var id = document.createElement('div');
-                id.className = 'card-id';
-                id.textContent = '# ' + item.id;
+                const id = createElementWithText('div', 'card-id', `# ${item.id}`);
+                const title = createElementWithText('div', 'card-title', item.title);
+                const date = createElementWithText('div', 'card-date', `Date: ${item.date}`);
+                const time = createElementWithText('div', 'card-time', `Time: ${item.time_spend} min`);
+                const button = createElementWithHTML('div', 'card-button', `<a class="button-describe" onclick="loadDescribe(${item.id})">Details</a>`);
 
-                var title = document.createElement('div');
-                title.className = 'card-title';
-                title.textContent = item.title;
+                [id, title, date, time, button].forEach(element => card.appendChild(element));
 
-                var date = document.createElement('div');
-                date.className = 'card-date';
-                date.textContent = 'Date: ' + item.date;
-
-                var time = document.createElement('div');
-                time.className = 'card-time';
-                time.textContent = 'Time: ' + item.time_spend + ' min';
-
-                var button = document.createElement('div');
-                button.className = 'card-button';
-                button.innerHTML = '<a class="button-describe" onclick="loadDescribe(' + item.id + ')">Details</a>';
-
-                card.appendChild(id);
-                card.appendChild(title);
-                card.appendChild(date);
-                card.appendChild(time);
-                card.appendChild(button);
-
-                switch (item.status) {
-                    case '1':
-                        created.appendChild(card);
-                        break;
-
-                    case '2':
-                        assigned.appendChild(card);
-                        break;
-
-                    case '3':
-                        completed.appendChild(card);
-                        break;
-                }
+                statusContainers[item.status].appendChild(card);
             });
         }
 
-        function loadDescribe(value) {
-            localStorage.setItem('id', value);
-            document.location.replace("details.html");
+        function createElementWithText(tag, className, text) {
+            const element = document.createElement(tag);
+            element.className = className;
+            element.textContent = text;
+            return element;
         }
 
-        function redirectManageExecutors() {
-            document.location.replace("manage_executors.html");
+        function createElementWithHTML(tag, className, html) {
+            const element = document.createElement(tag);
+            element.className = className;
+            element.innerHTML = html;
+            return element;
         }
 
-        document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
+        function loadDescribe(id) {
+            localStorage.setItem('id', id);
+            window.location.href = "details.html";
+        }
 
         async function exportDataToCSV() {
             try {
-                // Faça a requisição para a API
-                const response = await fetch('http://127.0.0.1:8000/api/maintenancereport/');
-                const jsonData = await response.json();
+                const responseExecutorReport = await fetch('http://127.0.0.1:8000/api/maintenancereports/');
+                if (!responseExecutorReport.ok) throw new Error('Network response was not ok');
+                const jsonDataExecutorReport = await responseExecutorReport.json();
 
-                // Transforme os valores da coluna "Shift"
-                const transformedData = jsonData.map(item => {
-                    switch (item.shift) {
-                        case 'M':
-                            item.shift = 'Morning';
-                            break;
-                        case 'A':
-                            item.shift = 'Afternoon';
-                            break;
-                        case 'N':
-                            item.shift = 'Night';
-                            break;
-                    }
-                    switch (item.status) {
-                        case '1':
-                            item.status = 'Create';
-                            break;
-                        case '2':
-                            item.status = 'Atribuída';
-                            break;
-                        case '3':
-                            item.status = 'Executada';
-                            break;
-                        case '4':
-                            item.status = 'Feedback';
-                            break;
-                        case '5':
-                            item.status = 'Concluída';
-                            break;
-                    }
-                    switch (item.code) {
-                        case '1':
-                            item.code = 'Code 1';
-                            break;
-                        case '2':
-                            item.code = 'Code 2';
-                            break;
-                    }
-                    console.log('Transformed Item:', item);
-                    return item;
-                });
+                const transformedData = jsonDataExecutorReport.map(transformData);
 
-                // Converta os dados JSON em CSV
                 const csvData = convertJSONToCSV(transformedData);
 
-                // Crie um link para download do arquivo CSV
-                const blob = new Blob([csvData], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'report.csv';
-
-                // Adicione o link ao DOM e clique nele automaticamente
-                document.body.appendChild(a);
-                a.click();
-
-                // Remova o link do DOM
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
+                downloadCSV(csvData, 'report.csv');
             } catch (error) {
                 console.error('Error fetching or processing data:', error);
             }
         }
 
+        function transformData(item) {
+            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
+            const statuses = { '1': 'Create', '2': 'Atribuída', '3': 'Executada', '4': 'Feedback', '5': 'Concluída' };
+            const codes = { '1': 'Code 1', '2': 'Code 2' };
+
+            item.shift = shifts[item.shift] || item.shift;
+            item.status = statuses[item.status] || item.status;
+            item.code = codes[item.code] || item.code;
+
+            return item;
+        }
+
         function convertJSONToCSV(jsonData) {
-            // Pegue os cabeçalhos das chaves do primeiro objeto
             const headers = Object.keys(jsonData[0]);
-            const csvRows = [];
+            const csvRows = [headers.join(',')];
 
-            // Adicione a linha de cabeçalho
-            csvRows.push(headers.join(','));
-
-            // Adicione as linhas de dados
-            for (const row of jsonData) {
-                const values = headers.map(header => {
-                    const escaped = ('' + row[header]).replace(/"/g, '\\"');
-                    return `"${escaped}"`;
-                });
+            jsonData.forEach(row => {
+                const values = headers.map(header => `"${('' + row[header]).replace(/"/g, '\\"')}"`);
                 csvRows.push(values.join(','));
-            }
+            });
 
             return csvRows.join('\n');
         }
 
-    </script>
+        function downloadCSV(csvData, filename) {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
 
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 
 </html>

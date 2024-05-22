@@ -44,20 +44,9 @@
                     </select>
                 </div>
 
-                <div class="width-49 space-top">
+                <div class="width-100 space-top">
                     <label for="lineMachine">Line or Machine:</label>
                     <input class="dimensions-form" type="text" id="line_machine" name="line_machine">
-                </div>
-
-                <div class="width-2"></div>
-
-                <div class="width-49 space-top flex-column center">
-                    <label for="code">Code:</label>
-                    <div class="flex-row checkbox-wrapper-25 space-top">
-                        <label id="code1" for="code1">Code 1</label>
-                        <input type="checkbox" id="code" name="code" onclick="checkCodeInterlock()">
-                        <label id="code2" for="code2">Code 2</label>
-                    </div>
                 </div>
 
                 <div class="width-100 space-top">
@@ -67,102 +56,100 @@
                 </div>
 
                 <div class="width-49 space-top">
-                    <label for="number_people">Number of People:</label>
-                    <input class="dimensions-form" type="number" id="number_people" name="number_people">
-                </div>
-
-                <div class="width-2"></div>
-
-                <div class="width-49 space-top">
                     <label for="time_spend">Time Spent on this Job (minutes):</label>
                     <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend">
                 </div>
 
-                <div class="width-49 space-top flex-row align-right">
-                    <button id="submit" type="submit">Submit Data</button>
-                </div>
-
                 <div class="width-2"></div>
 
-                <div class="width-49 space-top flex-row align-left">
-                    <button type="reset" id="resetButton" onclick="confirmReset()">Reset Data</button>
+                <div class="width-49 space-top flex-column center">
+                    <label for="code">Code:</label>
+                    <div class="flex-row checkbox-wrapper-25 space-top">
+                        <label id="code1" for="code1">Code 1</label>
+                        <input type="checkbox" id="code" name="code">
+                        <label id="code2" for="code2">Code 2</label>
+                    </div>
                 </div>
 
+                <div class="width-100 space-top center">
+                    <button class="margin-button" id="submit" type="submit">Submit Data</button>
+                    <button class="margin-button" type="reset" id="resetButton">Reset Data</button>
+                </div>
             </form>
         </div>
     </div>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('title');
+            const charCount = document.getElementById('charCount');
+            const form = document.getElementById('reportForm');
+            const codeCheckbox = document.getElementById('code');
+            const code1 = document.getElementById('code1');
+            const code2 = document.getElementById('code2');
 
-<script>
-    const input = document.getElementById('title');
-    const charCount = document.getElementById('charCount');
+            input.addEventListener('input', updateCharCount);
 
-    input.addEventListener('input', () => {
-        const length = input.value.length;
-        charCount.textContent = `${length}/45`;
+            form.addEventListener('submit', submitForm);
+            form.addEventListener('reset', confirmReset);
 
-        if (length > 45) {
-            charCount.classList.add('over-limit');
-        } else {
-            charCount.classList.remove('over-limit');
-        }
-    });
+            codeCheckbox.addEventListener('change', checkCodeInterlock);
 
-    function checkCodeInterlock() {
-        var code = document.getElementById("code");
-        var code1 = document.getElementById("code1");
-        var code2 = document.getElementById("code2");
-        if (code.checked) {
-            code1.style.display = "none";
-            code2.style.display = "flex";
-        } else {
-            code1.style.display = "flex";
-            code2.style.display = "none";
-        }
-    }
+            function updateCharCount() {
+                const length = input.value.length;
+                charCount.textContent = `${length}/45`;
+                charCount.classList.toggle('over-limit', length > 45);
+            }
 
-    async function submitForm(event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
+            function checkCodeInterlock() {
+                if (codeCheckbox.checked) {
+                    code1.style.display = "none";
+                    code2.style.display = "flex";
+                } else {
+                    code1.style.display = "flex";
+                    code2.style.display = "none";
+                }
+            }
 
-        var form = document.getElementById("reportForm");
-        var formData = new FormData(form);
+            async function submitForm(event) {
+                event.preventDefault(); // Impede o envio padrão do formulário
 
-        // Verifica o estado da checkbox e ajusta o valor do campo "code" conforme necessário
-        var codeChecked = document.getElementById("code").checked;
-        formData.set("code", codeChecked ? "2" : "1");
+                const formData = new FormData(form);
+                formData.set("code", codeCheckbox.checked ? "2" : "1");
 
-        // Prepara os dados para envio na API
-        var data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch("http://127.0.0.1:8000/api/maintenancereport/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log("Success:", result);
+                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                    } else {
+                        console.error("Error:", response.statusText);
+                        // Ações em caso de erro, como exibir uma mensagem de erro
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    // Ações em caso de erro de rede ou outros
+                }
+            }
+
+            function confirmReset() {
+                return confirm("Are you sure you want to reset the form?");
+            }
+
+            checkCodeInterlock(); // Inicializa o estado do código
+            updateCharCount(); // Inicializa a contagem de caracteres
         });
 
-        try {
-            let response = await fetch("http://127.0.0.1:8000/api/maintenancereport/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                let result = await response.json();
-                console.log("Success:", result);
-                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-            } else {
-                console.error("Error:", response.statusText);
-                // Ações em caso de erro, como exibir uma mensagem de erro
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            // Ações em caso de erro de rede ou outros
-        }
-    }
-
-    document.getElementById("reportForm").addEventListener("submit", submitForm);
-
-    checkCodeInterlock();
-</script>
+    </script>
+</body>
 
 </html>

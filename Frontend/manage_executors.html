@@ -107,24 +107,26 @@
         function addInTable(data) {
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
-                executors.set(item.id, item.name);
-                const newRow = table.insertRow();
-                const newCell1 = newRow.insertCell(0);
-                const newCell2 = newRow.insertCell(1);
+                if (item.ativo == 1) {
+                    executors.set(item.id, item.name);
+                    const newRow = table.insertRow();
+                    const newCell1 = newRow.insertCell(0);
+                    const newCell2 = newRow.insertCell(1);
 
-                newCell1.textContent = item.name; // Replace 'column1' with actual data field
-                newCell2.className = 'center'
-                newCell2.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
-                    '<span class="material-symbols-outlined">' +
-                    'edit_square' +
-                    '</span>' +
-                    '</button>' +
-                    '<div class="width-2"></div>' +
-                    '<button id="delete" onclick="deleteData(' + item.id + ')">' +
-                    '<span class="material-symbols-outlined">' +
-                    'delete' +
-                    '</span>' +
-                    '</button>';
+                    newCell1.textContent = item.name; // Replace 'column1' with actual data field
+                    newCell2.className = 'center'
+                    newCell2.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
+                        '<span class="material-symbols-outlined">' +
+                        'edit_square' +
+                        '</span>' +
+                        '</button>' +
+                        '<div class="width-2"></div>' +
+                        '<button id="delete" onclick="deleteData(' + item.id + ')">' +
+                        '<span class="material-symbols-outlined">' +
+                        'delete' +
+                        '</span>' +
+                        '</button>';
+                }
             });
 
             // Alternate row coloring
@@ -199,10 +201,15 @@
         document.getElementById("reportForm").addEventListener("submit", submitForm);
 
         function deleteData(id) {
+            var name = executors.get(id) + ' (INATIVO)';
             try {
                 var apiUrl = 'http://127.0.0.1:8000/api/executor/' + id + '/';
                 let response = fetch(apiUrl, {
-                    method: "DELETE"
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 'name': name, 'ativo': '2' })
                 });
 
                 if (response.ok) {

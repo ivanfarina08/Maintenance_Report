@@ -5,7 +5,7 @@
 .cardsReports {
     display: flex;
     flex-wrap: wrap;
-    justify-content: baseline;
+    justify-content: center;
 }
 
 .card {
@@ -18,7 +18,6 @@
     height: 28vh;
     position: relative;
     background-color: rgba(255, 255, 255, 0.658);
-    flex-grow: 1;
 }
 
 .card-title {
@@ -213,7 +212,7 @@ button:hover {
     display: none;
 }
 
-#update, .btn-create, .btn-update, #delete, #assign{
+#update, .btn-create, .btn-update, #delete, #assign, #completed{
     font-weight: 500;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     letter-spacing: 2px;
@@ -233,7 +232,7 @@ button:hover {
     background-color: #4cacaf;
 }
 
-.btn-create:hover, #assign{
+.btn-create:hover, #assign:hover{
     background-color: #269599;
 }
 
@@ -253,7 +252,13 @@ button:hover {
     background-color: #A10800;
 }
 
+#completed{
+    background-color: #af874c;
+}
 
+#completed:hover{
+    background-color: #b49d79;
+}
 
 .table-container {
     width: 100%;
@@ -392,6 +397,10 @@ button:hover {
 .flex-row {
     display: flex;
     flex-direction: row;
+}
+
+.flex-grow{
+    flex-grow: 2;
 }
 
 .checkbox-wrapper-25 input[type="checkbox"] {

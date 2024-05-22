@@ -1,10 +1,20 @@
 from django.db import models
 
+
+
+class Executor(models.Model):
+    ATIVO = (
+        ('1', 'Ativo'),
+        ('2', 'Inativo')
+    )
+    name = models.CharField(max_length=50)
+    ativo = models.CharField(max_length=1, choices=ATIVO, blank=False, null=False, default='1')
+
 class MaintenanceReport(models.Model):
     STATUS = (
-        ('1', 'Created'),
-        ('2', 'Assigned'),
-        ('3', 'Completed')
+        ('1', 'Open'),
+        ('2', 'Check'),
+        ('3', 'Closed')
     )
     SHIFT = (
         ('M','Morning Shift'),
@@ -21,13 +31,10 @@ class MaintenanceReport(models.Model):
     line_machine = models.CharField(max_length=50)
     code = models.CharField(max_length=1, choices=CODE, blank=False, null=False, default='1')
     description = models.CharField(max_length=100)
-    number_people = models.CharField(max_length=15)
     time_spend = models.CharField(max_length=2)
     status = models.CharField(max_length=1, choices=STATUS, blank=False, null=False, default='1')
-
-class Executor(models.Model):
-    name = models.CharField(max_length=50)
+    executors = models.ManyToManyField(Executor, through='ExecutorReport')
 
 class ExecutorReport(models.Model):
-    idExecutor = models.CharField(max_length=2)
-    idReport = models.CharField(max_length=2)
+    idExecutor = models.ForeignKey(Executor, on_delete=models.DO_NOTHING)
+    idReport = models.ForeignKey(MaintenanceReport, on_delete=models.CASCADE)

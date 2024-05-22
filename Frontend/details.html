@@ -9,9 +9,7 @@
 </head>
 
 <body>
-
     <div class="container">
-
         <header>
             <div class="flex-column">
                 <img id="logo" src="img/logo.png" alt="GWB Logo">
@@ -25,7 +23,7 @@
 
         <form class="space-top" id="reportForm">
             <div class="width-10">
-                <label for="title">ID:</label>
+                <label for="id">ID:</label>
                 <input class="dimensions-form" type="number" id="id" name="id" disabled>
             </div>
 
@@ -51,154 +49,164 @@
                 </select>
             </div>
 
-            <div class="width-49 space-top">
-                <label for="lineMachine">Line or Machine:</label>
+            <div class="width-100 space-top">
+                <label for="line_machine">Line or Machine:</label>
                 <input class="dimensions-form" type="text" id="line_machine" name="line_machine" disabled>
-            </div>
-
-            <div class="width-2"></div>
-
-            <div class="width-49 space-top flex-column center">
-                <label for="code">Code:</label>
-                <div class="flex-row checkbox-wrapper-25 space-top">
-                    <label id="code1" for="code1">Code 1</label>
-                    <input type="checkbox" id="code" name="code" disabled>
-                    <label id="code2" for="code2">Code 2</label>
-                </div>
             </div>
 
             <div class="width-100 space-top">
                 <label for="description">Fault Description:</label>
-                <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description"
-                    name="description" disabled></textarea>
+                <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description" name="description" disabled></textarea>
             </div>
-
-            <div class="width-49 space-top">
-                <label for="number_people">Number of People:</label>
-                <input class="dimensions-form" type="number" id="number_people" name="number_people" disabled>
+            
+            <div class="flex-row flex-grow">
+                <div class="space-top flex-grow">
+                    <label for="time_spend">Time Spent on this Job (minutes):</label>
+                    <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend" disabled>
+                </div>
+    
+                <div class="space-top flex-column center flex-grow">
+                    <label for="code">Code:</label>
+                    <div class="flex-row checkbox-wrapper-25 space-top">
+                        <label id="code1" for="code1">Code 1</label>
+                        <input type="checkbox" id="code" name="code" disabled>
+                        <label id="code2" for="code2">Code 2</label>
+                    </div>
+                </div>
+    
+                <div class="div-dimensions-form space-top flex-grow">
+                    <label for="status">Status:</label>
+                    <select class="dimensions-form" id="status" name="status" disabled>
+                        <option value="">Select Status</option>
+                        <option value="1">Open</option>
+                        <option value="2">Check</option>
+                        <option value="3">Closed</option>
+                    </select>
+                </div>
             </div>
-
-            <div class="width-2"></div>
-
-            <div class="width-49 space-top">
-                <label for="time_spend">Time Spent on this Job (minutes):</label>
-                <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend" disabled>
-            </div>
-
-            <div class="width-49 div-dimensions-form space-top">
-                <label for="shift">Status:</label>
-                <select class="dimensions-form" id="status" name="status" disabled>
-                    <option value="">Select Status</option>
-                    <option value="1">Created</option>
-                    <option value="2">Assigned</option>
-                    <option value="3">Completed</option>
-                </select>
-            </div>
-
         </form>
 
         <div class="width-100 space-top flex-row">
-            <button class="width-100 margin-button" id="assign" onclick="assaignExecutor()">Assign to executor</button>
-            <button class="width-100 margin-button" id="update" onclick="loadUpdate()">Update</button>
-            <button class="width-100 margin-button" id="delete" onclick="deleteData()">Delete</button>
+            <button class="width-100 margin-button" id="assign">Assign to executor</button>
+            <button class="width-100 margin-button" id="completed">Completed</button>
+            <button class="width-100 margin-button" id="update">Update</button>
+            <button class="width-100 margin-button" id="delete">Delete</button>
         </div>
-
     </div>
 
     <script>
-        loadDetails();
-        function getDataFromAPI(value) {
-            // URL da sua API Django
-            var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/' + value;
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDetails();
 
-            // Criação do objeto XMLHttpRequest
-            var xhr = new XMLHttpRequest();
+            document.getElementById('assign').addEventListener('click', assaignExecutor);
+            document.getElementById('update').addEventListener('click', loadUpdate);
+            document.getElementById('delete').addEventListener('click', deleteData);
+            document.getElementById('completed').addEventListener('click', completedData);
+        });
 
-            // Definição da função de callback para lidar com a resposta da requisição
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
-                        var responseData = JSON.parse(xhr.responseText);
-                        detailsReport(responseData);
-                    } else {
-                        // Se a requisição não for bem-sucedida, lide com o erro aqui
-                        console.error('Erro ao obter dados da API:', xhr.status);
-                    }
+        async function getDataFromAPI(id) {
+            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`Error fetching data: ${response.statusText}`);
                 }
-            };
-
-            // Abre a conexão para fazer a requisição GET para a URL da API
-            xhr.open('GET', apiUrl, true);
-
-            // Envia a requisição
-            xhr.send();
+                const data = await response.json();
+                detailsReport(data);
+            } catch (error) {
+                console.error('Erro ao obter dados da API:', error);
+            }
         }
 
         function loadDetails() {
-            var id = localStorage.getItem('id');
-            getDataFromAPI(id);
+            const id = localStorage.getItem('id');
+            if (id) {
+                getDataFromAPI(id);
+            } else {
+                console.error('No ID found in localStorage.');
+            }
         }
 
         function detailsReport(data) {
-            var id = data.id;
-            var title = data.title;
-            var date = data.date;
-            var shift = data.shift;
-            var line_machine = data.line_machine;
-            var code = data.code;
-            var description = data.description;
-            var number_people = data.number_people;
-            var time_spend = data.time_spend;
-            var status = data.status;
-
-            document.getElementById("id").value = id;
-            document.getElementById("title").value = title;
-            document.getElementById("date").value = date;
-            document.getElementById("shift").value = shift;
-            document.getElementById("line_machine").value = line_machine;
-            firstCheckCode(code);
-            document.getElementById("description").value = description;
-            document.getElementById("number_people").value = number_people;
-            document.getElementById("time_spend").value = time_spend;
-            document.getElementById("status").value = status;
-
+            document.getElementById("id").value = data.id;
+            document.getElementById("title").value = data.title;
+            document.getElementById("date").value = data.date;
+            document.getElementById("shift").value = data.shift;
+            document.getElementById("line_machine").value = data.line_machine;
+            firstCheckCode(data.code);
+            document.getElementById("description").value = data.description;
+            document.getElementById("time_spend").value = data.time_spend;
+            document.getElementById("status").value = data.status;
         }
 
-        function firstCheckCode(checkbox) {
-            var code = document.getElementById("code");
-            var code1 = document.getElementById("code1");
-            var code2 = document.getElementById("code2");
-            if (checkbox == 2) {
-                code.checked = true;
+        function firstCheckCode(code) {
+            const codeCheckbox = document.getElementById("code");
+            const code1 = document.getElementById("code1");
+            const code2 = document.getElementById("code2");
+            if (code == 2) {
+                codeCheckbox.checked = true;
                 code1.style.display = "none";
                 code2.style.display = "flex";
             } else {
+                codeCheckbox.checked = false;
                 code1.style.display = "flex";
                 code2.style.display = "none";
             }
         }
 
-        function loadUpdate(){
+        function loadUpdate() {
             document.location.replace("update.html");
         }
 
-        function assaignExecutor(){
+        function assaignExecutor() {
             document.location.replace("assignexecutor.html");
         }
 
-        function deleteData() {
-            var id = localStorage.getItem('id');
-            
+        async function deleteData() {
+            const id = localStorage.getItem('id');
+            if (!id) {
+                console.error('No ID found in localStorage.');
+                return;
+            }
+
+            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}/`;
             try {
-                var apiUrl = 'http://127.0.0.1:8000/api/maintenancereport/' + id + '/';
-                let response = fetch(apiUrl, {
+                const response = await fetch(apiUrl, {
                     method: "DELETE"
                 });
 
                 if (response.ok) {
-                    let result = response.json();
-                    console.log("Success:", result);
+                    console.log("Successfully deleted");
+                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                } else {
+                    console.error("Error:", response.statusText);
+                    // Ações em caso de erro, como exibir uma mensagem de erro
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
+            }
+        }
+
+        async function completedData() {
+            const id = localStorage.getItem('id');
+            if (!id) {
+                console.error('No ID found in localStorage.');
+                return;
+            }
+
+            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}/`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ 'status': '3' })
+                });
+
+                if (response.ok) {
+                    console.log("Successfully deleted");
                     // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
                 } else {
                     console.error("Error:", response.statusText);

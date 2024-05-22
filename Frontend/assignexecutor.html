@@ -62,14 +62,14 @@
             const API_EXECUTOR_URL = 'http://127.0.0.1:8000/api/executor/';
             const API_EXECUTOR_REPORT_URL = 'http://127.0.0.1:8000/api/executorreport/';
             const API_MAINTENANCE_REPORT_URL = 'http://127.0.0.1:8000/api/maintenancereport/';
-    
+
             let executors = new Map();
-    
+
             document.addEventListener('DOMContentLoaded', function () {
                 loadData();
                 document.getElementById("reportForm").addEventListener("submit", submitForm);
             });
-    
+
             async function fetchData(url) {
                 try {
                     let response = await fetch(url);
@@ -81,30 +81,32 @@
                     console.error('Fetch error:', error);
                 }
             }
-    
+
             async function loadData() {
                 try {
                     const executorData = await fetchData(API_EXECUTOR_URL);
                     addInSelect(executorData);
-    
+
                     const executorReportData = await fetchData(API_EXECUTOR_REPORT_URL);
                     addInTable(executorReportData);
                 } catch (error) {
                     console.error('Error loading data:', error);
                 }
             }
-    
+
             function addInSelect(data) {
                 const select = document.getElementById('idExecutor');
                 data.forEach(item => {
                     executors.set(item.id, item.name);
-                    const option = document.createElement('option');
-                    option.value = item.id;
-                    option.textContent = item.name;
-                    select.appendChild(option);
+                    if (item.ativo == 1) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.name;
+                        select.appendChild(option);
+                    }
                 });
             }
-    
+
             function addInTable(data) {
                 const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
                 const id = localStorage.getItem("id");
@@ -120,14 +122,14 @@
                 });
                 alternateRowColoring(table);
             }
-    
+
             function alternateRowColoring(table) {
                 const rows = table.getElementsByTagName('tr');
                 for (let i = 0; i < rows.length; i++) {
                     rows[i].style.backgroundColor = (i % 2 === 0) ? '#f9f9f9' : '#ffffff';
                 }
             }
-    
+
             async function submitForm(event) {
                 event.preventDefault();
                 var form = document.getElementById("reportForm");
@@ -139,7 +141,7 @@
                 await createExecutorReport(data);
                 await updateReport(data);
             }
-    
+
             async function createExecutorReport(data) {
                 try {
                     let response = await fetch(API_EXECUTOR_REPORT_URL, {
@@ -158,7 +160,7 @@
                     console.error("Fetch error:", error);
                 }
             }
-    
+
             async function updateReport(data) {
                 try {
                     let id = localStorage.getItem("id");
@@ -178,7 +180,7 @@
                     console.error("Fetch error:", error);
                 }
             }
-    
+
             async function deleteData(id) {
                 try {
                     let response = await fetch(`${API_EXECUTOR_REPORT_URL}${id}/`, {
@@ -192,7 +194,7 @@
                     console.error("Fetch error:", error);
                 }
             }
-    
+
             document.getElementById("idReport").value = localStorage.getItem("id");
         </script>
 
