@@ -131,6 +131,9 @@
             item.shift = shifts[item.shift] || item.shift;
             item.status = statuses[item.status] || item.status;
             item.code = codes[item.code] || item.code;
+            item.executors = item.executors.map((item)=>{
+                return item.name;
+            });
 
             return item;
         }
