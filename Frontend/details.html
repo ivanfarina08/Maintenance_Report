@@ -153,11 +153,12 @@
 
         async function deleteData() {
             try {
-                const result = await sendRequest(apiUrlID, 'DELETE');
+                const result = await sendRequestDeleteData(apiUrlID, 'DELETE');
                 console.log("Success:", result);
                 // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);
+                debugger;
                 // Ações em caso de erro de rede ou outros
             }
         }

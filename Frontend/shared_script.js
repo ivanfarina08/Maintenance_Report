@@ -81,3 +81,13 @@ async function sendRequest(url, method, data) {
 
     return response.json();
 }
+
+async function sendRequestDeleteData(url, method) {
+    const response = await fetch(url, {
+        method: method
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+    }
+}

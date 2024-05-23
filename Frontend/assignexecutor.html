@@ -57,146 +57,118 @@
                 </table>
             </div>
         </div>
+    </div>
 
-        <script>
-            const API_EXECUTOR_URL = 'http://127.0.0.1:8000/api/executor/';
-            const API_EXECUTOR_REPORT_URL = 'http://127.0.0.1:8000/api/executorreport/';
-            const API_MAINTENANCE_REPORT_URL = 'http://127.0.0.1:8000/api/maintenancereport/';
+    <script src="shared_script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            initPage();
+            document.getElementById("reportForm").addEventListener("submit", submitForm);
+        });
 
-            let executors = new Map();
+        let apiUrlExecutor = '';
+        let apiUrlExecutorReport = '';
+        let apiUrlReport = '';
+        let executors = new Map();
 
-            document.addEventListener('DOMContentLoaded', function () {
-                loadData();
-                document.getElementById("reportForm").addEventListener("submit", submitForm);
+        async function initPage() {
+            apiUrlExecutor = await api_name('executor');
+            apiUrlExecutorReport = await api_name('executor_report');
+            apiUrlReport = await api_name('report');
+            apiUrlReport = apiUrlReport+`${localStorage.getItem("id")}/`
+
+            const executorData = await fetchData(apiUrlExecutor);
+            addInSelect(executorData);
+            
+            const executorReportData = await fetchData(apiUrlExecutorReport);
+            addInTable(executorReportData);
+        }
+
+        function addInSelect(data) {
+            const select = document.getElementById('idExecutor');
+            data.forEach(item => {
+                executors.set(item.id, item.name);
+                if (item.ativo == 1) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                }
             });
+        }
 
-            async function fetchData(url) {
-                try {
-                    let response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return await response.json();
-                } catch (error) {
-                    console.error('Fetch error:', error);
+        function addInTable(data) {
+            const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
+            const id = localStorage.getItem("id");
+            data.forEach(item => {
+                if (item.idReport == id) {
+                    const newRow = table.insertRow();
+                    newRow.insertCell(0).textContent = executors.get(parseInt(item.idExecutor));
+                    const newCell2 = newRow.insertCell(1);
+                    newCell2.className = 'center';
+                    newCell2.innerHTML = '<button id="delete" onclick="deleteData(' + item.id + ')">' +
+                        '<span class="material-symbols-outlined">delete</span></button>';
                 }
+            });
+            alternateRowColoring(table);
+        }
+
+        function alternateRowColoring(table) {
+            const rows = table.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = (i % 2 === 0) ? '#f9f9f9' : '#ffffff';
             }
+        }
 
-            async function loadData() {
-                try {
-                    const executorData = await fetchData(API_EXECUTOR_URL);
-                    addInSelect(executorData);
+        async function submitForm(event) {
+            event.preventDefault();
+            var form = document.getElementById("reportForm");
+            var formData = new FormData(form);
+            var data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            await createExecutorReport(data);
+            await updateReport();
+        }
 
-                    const executorReportData = await fetchData(API_EXECUTOR_REPORT_URL);
-                    addInTable(executorReportData);
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                }
+        async function createExecutorReport(data) {
+            try {
+                const result = await sendRequest(apiUrlExecutorReport, 'POST', data);
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+            } catch (error) {
+                alert("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
             }
+        }
 
-            function addInSelect(data) {
-                const select = document.getElementById('idExecutor');
-                data.forEach(item => {
-                    executors.set(item.id, item.name);
-                    if (item.ativo == 1) {
-                        const option = document.createElement('option');
-                        option.value = item.id;
-                        option.textContent = item.name;
-                        select.appendChild(option);
-                    }
-                });
+        async function updateReport() {
+            const data = { 'status': '2' };
+            try {
+                const result = await sendRequest(apiUrlReport, 'PATCH', data);
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+            } catch (error) {
+                alert("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
             }
+        }
 
-            function addInTable(data) {
-                const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
-                const id = localStorage.getItem("id");
-                data.forEach(item => {
-                    if (item.idReport == id) {
-                        const newRow = table.insertRow();
-                        newRow.insertCell(0).textContent = executors.get(parseInt(item.idExecutor));
-                        const newCell2 = newRow.insertCell(1);
-                        newCell2.className = 'center';
-                        newCell2.innerHTML = '<button id="delete" onclick="deleteData(' + item.id + ')">' +
-                            '<span class="material-symbols-outlined">delete</span></button>';
-                    }
-                });
-                alternateRowColoring(table);
+        async function deleteData(id) {
+            var apiUrlID = apiUrlExecutorReport+`${id}/`;
+            try {
+                const result = await sendRequestDeleteData(apiUrlID, 'DELETE');
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
             }
+        }
 
-            function alternateRowColoring(table) {
-                const rows = table.getElementsByTagName('tr');
-                for (let i = 0; i < rows.length; i++) {
-                    rows[i].style.backgroundColor = (i % 2 === 0) ? '#f9f9f9' : '#ffffff';
-                }
-            }
-
-            async function submitForm(event) {
-                event.preventDefault();
-                var form = document.getElementById("reportForm");
-                var formData = new FormData(form);
-                var data = {};
-                formData.forEach((value, key) => {
-                    data[key] = value;
-                });
-                await createExecutorReport(data);
-                await updateReport(data);
-            }
-
-            async function createExecutorReport(data) {
-                try {
-                    let response = await fetch(API_EXECUTOR_REPORT_URL, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    let result = await response.json();
-                    console.log("Success:", result);
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                }
-            }
-
-            async function updateReport(data) {
-                try {
-                    let id = localStorage.getItem("id");
-                    let response = await fetch(`${API_MAINTENANCE_REPORT_URL}${id}/`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ 'status': '2' })
-                    });
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    let result = await response.json();
-                    console.log("Success:", result);
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                }
-            }
-
-            async function deleteData(id) {
-                try {
-                    let response = await fetch(`${API_EXECUTOR_REPORT_URL}${id}/`, {
-                        method: "DELETE"
-                    });
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    console.log("Delete success");
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                }
-            }
-
-            document.getElementById("idReport").value = localStorage.getItem("id");
-        </script>
+        document.getElementById("idReport").value = localStorage.getItem("id");
+    </script>
 
 </body>
 

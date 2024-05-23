@@ -71,13 +71,15 @@
                     </div>
                 </div>
 
-                <div class="width-100 space-top center">
-                    <button class="margin-button" id="submit" type="submit">Submit Data</button>
-                    <button class="margin-button" type="reset" id="resetButton">Reset Data</button>
+                <div class="width-100 space-top flex-row">
+                    <button class="width-100 margin-button" id="submit" type="submit">Submit Data</button>
+                    <button class="width-100 margin-button" type="reset" id="resetButton">Reset Data</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script src="shared_script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('title');
@@ -117,24 +119,12 @@
                 formData.set("code", codeCheckbox.checked ? "2" : "1");
 
                 const data = Object.fromEntries(formData);
+                const apiUrl = await api_name('report');
 
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/api/maintenancereport/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log("Success:", result);
-                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                    } else {
-                        console.error("Error:", response.statusText);
-                        // Ações em caso de erro, como exibir uma mensagem de erro
-                    }
+                    const result = await sendRequest(apiUrl, 'POST', data);
+                    console.log("Success:", result);
+                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
                 } catch (error) {
                     console.error("Fetch error:", error);
                     // Ações em caso de erro de rede ou outros
