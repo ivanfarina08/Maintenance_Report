@@ -94,37 +94,34 @@
         </div>
     </div>
 
+    <script src="shared_script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            loadDetails();
+            initPage();
 
-            document.getElementById('assign').addEventListener('click', assaignExecutor);
-            document.getElementById('update').addEventListener('click', loadUpdate);
+            document.getElementById('assign').addEventListener('click', ()=>document.location.replace("assignexecutor.html"));
+            document.getElementById('update').addEventListener('click', ()=>document.location.replace("update.html"));
             document.getElementById('delete').addEventListener('click', deleteData);
             document.getElementById('completed').addEventListener('click', completedData);
         });
 
-        async function getDataFromAPI(id) {
-            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}`;
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`Error fetching data: ${response.statusText}`);
-                }
-                const data = await response.json();
-                detailsReport(data);
-            } catch (error) {
-                console.error('Erro ao obter dados da API:', error);
-            }
-        }
+        let apiUrl = '';
+        let apiUrlID = '';
 
-        function loadDetails() {
+        function initPage() {
             const id = localStorage.getItem('id');
             if (id) {
                 getDataFromAPI(id);
             } else {
                 console.error('No ID found in localStorage.');
             }
+        }
+
+        async function getDataFromAPI(id) {
+            apiUrl = await api_name('report');
+            apiUrlID = apiUrl+`${id}/`;
+            const report = await loadData(apiUrlID);
+            detailsReport(report);
         }
 
         function detailsReport(data) {
@@ -154,34 +151,11 @@
             }
         }
 
-        function loadUpdate() {
-            document.location.replace("update.html");
-        }
-
-        function assaignExecutor() {
-            document.location.replace("assignexecutor.html");
-        }
-
         async function deleteData() {
-            const id = localStorage.getItem('id');
-            if (!id) {
-                console.error('No ID found in localStorage.');
-                return;
-            }
-
-            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}/`;
             try {
-                const response = await fetch(apiUrl, {
-                    method: "DELETE"
-                });
-
-                if (response.ok) {
-                    console.log("Successfully deleted");
-                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                } else {
-                    console.error("Error:", response.statusText);
-                    // Ações em caso de erro, como exibir uma mensagem de erro
-                }
+                const result = await sendRequest(apiUrlID, 'DELETE');
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);
                 // Ações em caso de erro de rede ou outros
@@ -189,29 +163,11 @@
         }
 
         async function completedData() {
-            const id = localStorage.getItem('id');
-            if (!id) {
-                console.error('No ID found in localStorage.');
-                return;
-            }
-
-            const apiUrl = `http://127.0.0.1:8000/api/maintenancereport/${id}/`;
+            const data  = { 'status': '3' };
             try {
-                const response = await fetch(apiUrl, {
-                    method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ 'status': '3' })
-                });
-
-                if (response.ok) {
-                    console.log("Successfully deleted");
-                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                } else {
-                    console.error("Error:", response.statusText);
-                    // Ações em caso de erro, como exibir uma mensagem de erro
-                }
+                const result = await sendRequest(apiUrlID, 'PATCH', data);
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);
                 // Ações em caso de erro de rede ou outros

@@ -65,31 +65,32 @@
 
     </div>
 
+    <script src="shared_script.js"></script>
     <script>
 
         document.addEventListener('DOMContentLoaded', () => {
+            initPage();
             document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
         });
 
+        let executor_report_with_data = [];
+        let executors = new Map();
+        let apiUrl;
+
+        async function initPage() {
+            apiUrl = await api_name('executor');
+            let responseData = await loadData(apiUrl)
+            addInTable(responseData);
+        }
+
         async function exportDataToCSV() {
-            try {
-                const responseExecutorReport = await fetch('http://127.0.0.1:8000/api/executorreports/');
-                if (!responseExecutorReport.ok) throw new Error('Network response was not ok');
-                const jsonDataExecutorReport = await responseExecutorReport.json();
-
-                const transformedData = jsonDataExecutorReport.map(transformData);
-
-                const csvData = convertJSONToCSV(transformedData);
-
-                downloadCSV(csvData, 'report_executors.csv');
-            } catch (error) {
-                console.error('Error fetching or processing data:', error);
-            }
+            executor_report_with_data = await loadData(apiUrl)
+            const transformedData = executor_report_with_data.map(transformData);
+            const csvData = convertJSONToCSV(transformedData);
+            downloadCSV(csvData, 'report_executors.csv');
         }
 
         function transformData(item) {
-            item.idExecutor = item.idExecutor.name;
-
             const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
             const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
             const codes = { '1': 'Code 1', '2': 'Code 2' };
@@ -97,7 +98,8 @@
             item.idReport.shift = shifts[item.idReport.shift] || item.idReport.shift;
             item.idReport.status = statuses[item.idReport.status] || item.idReport.status;
             item.idReport.code = codes[item.idReport.code] || item.idReport.code;
-            
+
+            item.idExecutor = item.idExecutor.name;
             item.id_report = item.idReport.id;
             item.title = item.idReport.title;
             item.date = item.idReport.date;
@@ -109,78 +111,6 @@
             item.status = item.idReport.status;
             delete item.idReport;
             return item;
-        }
-
-        function convertJSONToCSV(jsonData) {
-            const headers = Object.keys(jsonData[0]);
-            const csvRows = [headers.join(',')];
-
-            jsonData.forEach(row => {
-                const values = headers.map(header => `"${('' + row[header]).replace(/"/g, '\\"')}"`);
-                csvRows.push(values.join(','));
-            });
-
-            return csvRows.join('\n');
-        }
-
-        function downloadCSV(csvData, filename) {
-            const blob = new Blob([csvData], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename;
-
-            document.body.appendChild(a);
-            a.click();
-
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-
-        const input = document.getElementById('name');
-        const charCount = document.getElementById('charCount');
-
-        input.addEventListener('input', () => {
-            const length = input.value.length;
-            charCount.textContent = `${length}/45`;
-
-            if (length > 45) {
-                charCount.classList.add('over-limit');
-            } else {
-                charCount.classList.remove('over-limit');
-            }
-        });
-
-        getDataFromAPI();
-        let executors = new Map();
-        function getDataFromAPI() {
-            // URL da sua API Django
-            var apiUrl = 'http://127.0.0.1:8000/api/executor/';
-
-            // Criação do objeto XMLHttpRequest
-            var xhr = new XMLHttpRequest();
-
-            // Definição da função de callback para lidar com a resposta da requisição
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        // Se a requisição for bem-sucedida (status 200), manipule os dados recebidos aqui
-                        var responseData = JSON.parse(xhr.responseText);
-                        addInTable(responseData);
-                    } else {
-                        // Se a requisição não for bem-sucedida, lide com o erro aqui
-                        console.error('Erro ao obter dados da API:', xhr.status);
-                    }
-                }
-            };
-
-            // Abre a conexão para fazer a requisição GET para a URL da API
-            xhr.open('GET', apiUrl, true);
-
-            // Envia a requisição
-            xhr.send();
         }
 
         function addInTable(data) {
@@ -215,90 +145,56 @@
             }
         }
 
+        const input = document.getElementById('name');
+        const charCount = document.getElementById('charCount');
+
+        input.addEventListener('input', () => {
+            const length = input.value.length;
+            charCount.textContent = `${length}/45`;
+
+            if (length > 45) {
+                charCount.classList.add('over-limit');
+            } else {
+                charCount.classList.remove('over-limit');
+            }
+        });
+
         let updateForm = false;
         async function submitForm(event) {
             event.preventDefault(); // Impede o envio padrão do formulário
 
-            var form = document.getElementById("reportForm");
-            var formData = new FormData(form);
-            var id = document.getElementById('id_hidden').textContent;
+            const form = document.getElementById("reportForm");
+            const formData = new FormData(form);
+            const id = document.getElementById('id_hidden').textContent;
 
             // Prepara os dados para envio na API
-            var data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
+            const data = Object.fromEntries(formData.entries());
+            
+            const apiUrlID = apiUrl+`${id}/`;
 
-            if (updateForm) {
-                try {
-                    let response = await fetch("http://127.0.0.1:8000/api/executor/" + id + "/", {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    });
+            const url = updateForm ? apiUrlID : apiUrlExecutor;
+            const method = updateForm ? "PUT" : "POST";
 
-                    if (response.ok) {
-                        let result = await response.json();
-                        console.log("Success:", result);
-                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                    } else {
-                        console.error("Error:", response.statusText);
-                        // Ações em caso de erro, como exibir uma mensagem de erro
-                    }
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                    // Ações em caso de erro de rede ou outros
-                }
-            }
-            else {
-                try {
-                    let response = await fetch("http://127.0.0.1:8000/api/executor/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (response.ok) {
-                        let result = await response.json();
-                        console.log("Success:", result);
-                        // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                    } else {
-                        console.error("Error:", response.statusText);
-                        // Ações em caso de erro, como exibir uma mensagem de erro
-                    }
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                    // Ações em caso de erro de rede ou outros
-                }
+            try {
+                const result = await sendRequest(url, method, data);
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // Ações em caso de erro de rede ou outros
             }
         }
 
         document.getElementById("reportForm").addEventListener("submit", submitForm);
 
-        function deleteData(id) {
+        async function deleteData(id) {
             var name = executors.get(id) + ' (INATIVO)';
+            var data = {'name': name, 'ativo': '2'};
+            const apiUrlID = apiUrl+`${id}/`
             try {
-                var apiUrl = 'http://127.0.0.1:8000/api/executor/' + id + '/';
-                let response = fetch(apiUrl, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ 'name': name, 'ativo': '2' })
-                });
-
-                if (response.ok) {
-                    let result = response.json();
-                    console.log("Success:", result);
-                    // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
-                } else {
-                    console.error("Error:", response.statusText);
-                    // Ações em caso de erro, como exibir uma mensagem de erro
-                }
+                const result = await sendRequest(apiUrlID, 'PATCH', data);
+                console.log("Success:", result);
+                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);
                 // Ações em caso de erro de rede ou outros
@@ -308,10 +204,8 @@
         function updateData(id) {
             document.getElementById("id_hidden").textContent = id;
             document.getElementById("name").value = executors.get(id);
-            console.log(executors);
             document.getElementById("btn-executor").value = 'Update';
             document.getElementById("btn-executor").className = 'width-100 dimensions-form btn-update'
-
             updateForm = true;
         }
     </script>
