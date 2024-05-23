@@ -21,8 +21,14 @@
             </div>
         </header>
 
-        <div class="div-button-create-report">
-            <a class="button-create-report" href="index.html">Return to home</a>
+        <div class="flex-row">
+            <div class="div-button-create-report">
+                <a class="button-create-report" href="index.html">Return to home</a>
+            </div>
+
+            <div class="div-button-create-report">
+                <button class="button-create-report" id="exportButton">Export Data to CSV</button>
+            </div>
         </div>
 
         <div class="space-top flex-column">
@@ -60,6 +66,79 @@
     </div>
 
     <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
+        });
+
+        async function exportDataToCSV() {
+            try {
+                const responseExecutorReport = await fetch('http://127.0.0.1:8000/api/executorreports/');
+                if (!responseExecutorReport.ok) throw new Error('Network response was not ok');
+                const jsonDataExecutorReport = await responseExecutorReport.json();
+
+                const transformedData = jsonDataExecutorReport.map(transformData);
+
+                const csvData = convertJSONToCSV(transformedData);
+
+                downloadCSV(csvData, 'report_executors.csv');
+            } catch (error) {
+                console.error('Error fetching or processing data:', error);
+            }
+        }
+
+        function transformData(item) {
+            item.idExecutor = item.idExecutor.name;
+
+            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
+            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
+            const codes = { '1': 'Code 1', '2': 'Code 2' };
+
+            item.idReport.shift = shifts[item.idReport.shift] || item.idReport.shift;
+            item.idReport.status = statuses[item.idReport.status] || item.idReport.status;
+            item.idReport.code = codes[item.idReport.code] || item.idReport.code;
+            
+            item.id_report = item.idReport.id;
+            item.title = item.idReport.title;
+            item.date = item.idReport.date;
+            item.shift = item.idReport.shift;
+            item.line_machine = item.idReport.line_machine;
+            item.code = item.idReport.code;
+            item.description = item.idReport.description;
+            item.time_spend = item.idReport.time_spend;
+            item.status = item.idReport.status;
+            delete item.idReport;
+            return item;
+        }
+
+        function convertJSONToCSV(jsonData) {
+            const headers = Object.keys(jsonData[0]);
+            const csvRows = [headers.join(',')];
+
+            jsonData.forEach(row => {
+                const values = headers.map(header => `"${('' + row[header]).replace(/"/g, '\\"')}"`);
+                csvRows.push(values.join(','));
+            });
+
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(csvData, filename) {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+
         const input = document.getElementById('name');
         const charCount = document.getElementById('charCount');
 

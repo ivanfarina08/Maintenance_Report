@@ -56,6 +56,10 @@
     margin-bottom: 1em;
 }
 
+#top_x_div{
+    padding: 1em;
+}
+
 .div-button-create-report {
     width: 100%;
     padding: 2px;
@@ -441,6 +445,7 @@ button:hover {
     padding-left: 25px;
     padding-right: 0;
 }
+
 
 @media (max-width: 600px) {
     .width-2 {
