@@ -59,7 +59,7 @@
 
         async function initPage() {
             const apiUrl = await api_name('report');
-            const report = await loadData(apiUrl);
+            report = await loadData(apiUrl);
             createCards(report);
         }
 
