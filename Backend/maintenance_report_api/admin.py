@@ -3,7 +3,7 @@ from maintenance_report_api.models import MaintenanceReport, Executor, ExecutorR
 
 
 class MaintenanceReports(admin.ModelAdmin):
-    list_display = ('id','date', 'shift', 'line_machine', 'code', 'description', 'time_spend', 'status')
+    list_display = ('id','date', 'shift', 'line', 'machine', 'code', 'description', 'time_spend', 'status')
     list_display_links = ('id',)
 
 admin.site.register(MaintenanceReport,MaintenanceReports)
