@@ -116,7 +116,7 @@
         function addInTable(data) {
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
-                if (item.ativo == 1) {
+                if (item.activate == 1) {
                     executors.set(item.id, item.name);
                     const newRow = table.insertRow();
                     const newCell1 = newRow.insertCell(0);
@@ -188,8 +188,8 @@
         document.getElementById("reportForm").addEventListener("submit", submitForm);
 
         async function deleteData(id) {
-            var name = executors.get(id) + ' (INATIVO)';
-            var data = {'name': name, 'ativo': '2'};
+            var name = executors.get(id) + ' (INACTIVE)';
+            var data = {'name': name, 'activate': '2'};
             const apiUrlID = apiUrl+`${id}/`
             try {
                 const result = await sendRequest(apiUrlID, 'PATCH', data);

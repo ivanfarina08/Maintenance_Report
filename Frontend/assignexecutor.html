@@ -88,7 +88,7 @@
             const select = document.getElementById('idExecutor');
             data.forEach(item => {
                 executors.set(item.id, item.name);
-                if (item.ativo == 1) {
+                if (item.activate == 1) {
                     const option = document.createElement('option');
                     option.value = item.id;
                     option.textContent = item.name;

@@ -1,14 +1,12 @@
 from django.db import models
 
-
-
 class Executor(models.Model):
-    ATIVO = (
-        ('1', 'Ativo'),
-        ('2', 'Inativo')
+    ACTIVATE = (
+        ('1', 'activate'),
+        ('2', 'inactive')
     )
     name = models.CharField(max_length=50)
-    ativo = models.CharField(max_length=1, choices=ATIVO, blank=False, null=False, default='1')
+    activated = models.CharField(max_length=1, choices=ACTIVATE, blank=False, null=False, default='1')
 
 class MaintenanceReport(models.Model):
     STATUS = (
@@ -38,3 +36,20 @@ class MaintenanceReport(models.Model):
 class ExecutorReport(models.Model):
     idExecutor = models.ForeignKey(Executor, on_delete=models.DO_NOTHING)
     idReport = models.ForeignKey(MaintenanceReport, on_delete=models.CASCADE)
+
+class Line(models.Model):
+    ACTIVATE = (
+        ('1', 'activate'),
+        ('2', 'inactive')
+    )
+    name = models.CharField(max_length=50)
+    activate = models.CharField(max_length=1, choices=ACTIVATE, blank=False, null=False, default='1')
+
+class Machine(models.Model):
+    ACTIVATE = (
+        ('1', 'activate'),
+        ('2', 'inactive')
+    )
+    line = models.ForeignKey(Line, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    activate = models.CharField(max_length=1, choices=ACTIVATE, blank=False, null=False, default='1')
