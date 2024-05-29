@@ -32,7 +32,8 @@ class LineSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MachineSerializer(serializers.ModelSerializer):
-    
+    line_name = serializers.CharField(source='line.name', read_only=True)
+
     class Meta:
         model = Machine
-        fields = '__all__'
+        fields = ['id', 'name', 'activate', 'line', 'line_name']

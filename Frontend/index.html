@@ -29,6 +29,14 @@
             <div class="div-button-create-report">
                 <button class="button-create-report" id="executorButton">Manage Executors</button>
             </div>
+
+            <div class="div-button-create-report">
+                <button class="button-create-report" id="lineButton">Manage Lines</button>
+            </div>
+
+            <div class="div-button-create-report">
+                <button class="button-create-report" id="machineButton">Manage Machines</button>
+            </div>
         </div>
 
         <h2 class="space-top">Open</h2>
@@ -52,6 +60,12 @@
             document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
             document.getElementById('executorButton').addEventListener('click', () => {
                 window.location.href = "manage_executors.html";
+            });
+            document.getElementById('lineButton').addEventListener('click', () => {
+                window.location.href = "manage_lines.html";
+            });
+            document.getElementById('machineButton').addEventListener('click', () => {
+                window.location.href = "manage_machines.html";
             });
         });
 

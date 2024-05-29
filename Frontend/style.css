@@ -275,6 +275,14 @@ button:hover {
     width: 70%;
 }
 
+#table_line_name{
+    width: 35%;
+}
+
+#table_line{
+    width: 35%;
+}
+
 .elegant-table {
     width: 100%;
     border-collapse: collapse;

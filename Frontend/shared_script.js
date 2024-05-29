@@ -1,4 +1,6 @@
 const API_EXECUTOR_URL = 'http://127.0.0.1:8000/api/executor/';
+const API_LINES_URL = 'http://127.0.0.1:8000/api/line/';
+const API_MACHINES_URL = 'http://127.0.0.1:8000/api/machine/';
 const API_REPORT_URL = 'http://127.0.0.1:8000/api/maintenancereport/';
 const API_EXECUTOR_REPORT_URL = 'http://127.0.0.1:8000/api/executorreport/';
 const API_EXECUTOR_REPORT_WITH_DATA_URL = 'http://127.0.0.1:8000/api/executorreports/';
@@ -7,6 +9,10 @@ async function api_name(name) {
     switch (name) {
         case 'executor':
             return API_EXECUTOR_URL;
+        case 'line':
+            return API_LINES_URL;
+        case 'machine':
+            return API_MACHINES_URL;
         case 'report':
             return API_REPORT_URL;
         case 'executor_report':
@@ -20,7 +26,7 @@ async function api_name(name) {
 
 async function loadData(url) {
     try {
-        return await fetchData(url);        
+        return await fetchData(url);
     } catch (error) {
         console.error('Error loading data:', error);
     }

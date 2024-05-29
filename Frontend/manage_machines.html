@@ -32,27 +32,30 @@
         </div>
 
         <div class="space-top flex-column">
-            <h2>Create or Update Executor</h2>
+            <h2>Create or Update Machines</h2>
             <form action="" class="flex-row" id="reportForm">
                 <input type="hidden" name="id" id="id_hidden">
                 <div class="width-75">
-                    <input class="dimensions-form" type="text" id="name" name="name" placeholder="Executor's name"
+                    <select class="dimensions-form" id="line" name="line">
+                        <option value="">Select the Line</option>
+                    </select>
+                    <input class="dimensions-form" type="text" id="name" name="name" placeholder="Machine's Name"
                         maxlength="45">
-                    <div class="char-count" id="charCount">0/45</div>
                 </div>
-                <div class="width-25">
-                    <input type="submit" value="Create" class="width-100 dimensions-form btn-create" id="btn-executor">
+                <div class="width-25 center">
+                    <input type="submit" value="Create" class="width-100 dimensions-form btn-create" id="btn-machine">
                 </div>
             </form>
         </div>
 
         <div class="space-top">
-            <h2>Executor's table</h2>
+            <h2>Machine's table</h2>
             <div class="table-container">
                 <table class="elegant-table" id="elegantTable">
                     <thead>
                         <tr>
-                            <th id="table_name">Name</th>
+                            <th id="table_line">Line</th>
+                            <th id="table_line_name">Name</th>
                             <th id="table_action">Actions</th>
                         </tr>
                     </thead>
@@ -70,61 +73,41 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initPage();
-            document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
         });
 
-        let executor_report_with_data = [];
-        let executors = new Map();
+        let machine_report_with_data = [];
+        let machines = [];
         let apiUrl;
+        
+        //line variables
+        let apiUrlLine;
 
         async function initPage() {
-            apiUrl = await api_name('executor');
-            let responseData = await loadData(apiUrl)
+            //Get data to machines
+            apiUrl = await api_name('machine');
+            let responseData = await loadData(apiUrl);
             addInTable(responseData);
-        }
 
-        async function exportDataToCSV() {
-            executor_report_with_data = await loadData(apiUrl)
-            const transformedData = executor_report_with_data.map(transformData);
-            const csvData = convertJSONToCSV(transformedData);
-            downloadCSV(csvData, 'report_executors.csv');
-        }
-
-        function transformData(item) {
-            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
-            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
-            const codes = { '1': 'Code 1', '2': 'Code 2' };
-
-            item.idReport.shift = shifts[item.idReport.shift] || item.idReport.shift;
-            item.idReport.status = statuses[item.idReport.status] || item.idReport.status;
-            item.idReport.code = codes[item.idReport.code] || item.idReport.code;
-
-            item.idExecutor = item.idExecutor.name;
-            item.id_report = item.idReport.id;
-            item.title = item.idReport.title;
-            item.date = item.idReport.date;
-            item.shift = item.idReport.shift;
-            item.line_machine = item.idReport.line_machine;
-            item.code = item.idReport.code;
-            item.description = item.idReport.description;
-            item.time_spend = item.idReport.time_spend;
-            item.status = item.idReport.status;
-            delete item.idReport;
-            return item;
+            //Get data to lines
+            apiUrlLine = await api_name('line');
+            responseData = await loadData(apiUrlLine);
+            loadLines(responseData);
         }
 
         function addInTable(data) {
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
                 if (item.activate == 1) {
-                    executors.set(item.id, item.name);
+                    machines[item.id] = {'line': item.line, 'name': item.name};
                     const newRow = table.insertRow();
                     const newCell1 = newRow.insertCell(0);
                     const newCell2 = newRow.insertCell(1);
+                    const newCell3 = newRow.insertCell(2);
 
-                    newCell1.textContent = item.name; // Replace 'column1' with actual data field
-                    newCell2.className = 'center'
-                    newCell2.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
+                    newCell1.textContent = item.line_name;
+                    newCell2.textContent = item.name; // Replace 'column1' with actual data field
+                    newCell3.className = 'center'
+                    newCell3.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
                         '<span class="material-symbols-outlined">' +
                         'edit_square' +
                         '</span>' +
@@ -145,19 +128,17 @@
             }
         }
 
-        const input = document.getElementById('name');
-        const charCount = document.getElementById('charCount');
-
-        input.addEventListener('input', () => {
-            const length = input.value.length;
-            charCount.textContent = `${length}/45`;
-
-            if (length > 45) {
-                charCount.classList.add('over-limit');
-            } else {
-                charCount.classList.remove('over-limit');
-            }
-        });
+        function loadLines(data){
+            const select = document.getElementById('line');
+            data.forEach(item => {
+                if (item.activate == 1) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                }
+            });
+        }
 
         let updateForm = false;
         async function submitForm(event) {
@@ -172,7 +153,7 @@
             
             const apiUrlID = apiUrl+`${id}/`;
 
-            const url = updateForm ? apiUrlID : apiUrlExecutor;
+            const url = updateForm ? apiUrlID : apiUrl;
             const method = updateForm ? "PUT" : "POST";
 
             try {
@@ -188,7 +169,7 @@
         document.getElementById("reportForm").addEventListener("submit", submitForm);
 
         async function deleteData(id) {
-            var name = executors.get(id) + ' (INACTIVE)';
+            var name = machines[id].name + ' (INACTIVE)';
             var data = {'name': name, 'activate': '2'};
             const apiUrlID = apiUrl+`${id}/`
             try {
@@ -203,9 +184,10 @@
 
         function updateData(id) {
             document.getElementById("id_hidden").textContent = id;
-            document.getElementById("name").value = executors.get(id);
-            document.getElementById("btn-executor").value = 'Update';
-            document.getElementById("btn-executor").className = 'width-100 dimensions-form btn-update'
+            document.getElementById("line").value = machines[id].line;
+            document.getElementById("name").value = machines[id].name;
+            document.getElementById("btn-machine").value = 'Update';
+            document.getElementById("btn-machine").className = 'width-100 dimensions-form btn-update'
             updateForm = true;
         }
     </script>
