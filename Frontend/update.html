@@ -52,15 +52,19 @@
                 </select>
             </div>
 
-            <div class="width-100 space-top">
-                <label for="description">Line:</label>
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="line">Line:</label>
                 <select class="dimensions-form" id="line" name="line">
                     <option value="">Select the Line</option>
                 </select>
+            </div>
 
-                <label for="description">Machine:</label>
-                <select class="dimensions-form" id="line" name="line">
-                    <option value="">Select the Line</option>
+            <div class="width-2"></div>
+
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="machine">Machine:</label>
+                <select class="dimensions-form" id="machine" name="machine">
+                    <option value="">Select the Machine</option>
                 </select>
             </div>
 
@@ -111,17 +115,98 @@
             initPage();
 
             document.getElementById('code').addEventListener('click', checkCodeInterlock);
+            document.getElementById("reportForm").addEventListener("submit", submitForm);
+
+            const input = document.getElementById('title');
+            const charCount = document.getElementById('charCount');
+            input.addEventListener('input', () => {
+                const length = input.value.length;
+                charCount.textContent = `${length}/45`;
+
+                if (length > 45) {
+                    charCount.classList.add('over-limit');
+                } else {
+                    charCount.classList.remove('over-limit');
+                }
+            });
+
+            document.getElementById('line').addEventListener('change', addSelectMachine);
         });
 
         let apiUrl = '';
         let apiUrlID = '';
+        let line;
+        let machineSelect;
+        let machines = [];
 
-        function initPage() {
+        async function initPage() {
+            line = document.getElementById('line');
+            machineSelect = document.getElementById('machine');
+
+            await loadLine();
+            await loadMachines();
+
             const id = localStorage.getItem('id');
             if (id) {
-                getDataFromAPI(id);
+                await getDataFromAPI(id);
             } else {
                 console.error('No ID found in localStorage.');
+            }
+        }
+
+        async function loadLine() {
+            const apiUrlLine = await api_name('line');
+            const responseData = await loadData(apiUrlLine);
+            await addSelectLine(responseData);
+        }
+
+        async function addSelectLine(data) {
+            const selectLine = document.getElementById('line');
+            selectLine.innerHTML = ''; // Limpar as opções existentes antes de adicionar novas
+            data.forEach(item => {
+                if (item.activate == 1) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    selectLine.appendChild(option);
+                }
+            });
+        }
+
+        async function loadMachines() {
+            if (!line.value) {
+                console.warn('Line value is not set. Skipping machine load.');
+                return;
+            }
+            // Limpar o select de máquinas antes de adicionar novas opções
+            machineSelect.innerHTML = '';
+
+            //Get data to machines
+            const apiUrlMachine = await api_name('machine');
+            const responseData = await loadData(apiUrlMachine);
+            await addMachines(responseData);
+        }
+
+        async function addMachines(data) {
+            data.forEach(item => {
+                if (item.activate == 1) {
+                    machines[item.id] = {'id': item.id, 'name': item.name, 'line': item.line, 'line_name': item.line_name };
+                }
+            });
+        }
+
+        async function addSelectMachine() {
+            const selectLineValue = line.value;
+            machineSelect.innerHTML = '';
+            if (selectLineValue) {
+                machines.forEach(item => {
+                    if (item.line == selectLineValue) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.name;
+                        machineSelect.appendChild(option);
+                    }
+                });
             }
         }
 
@@ -132,12 +217,14 @@
             detailsReport(report);
         }
 
-        function detailsReport(data) {
+        async function detailsReport(data) {
             document.getElementById("id").value = data.id;
             document.getElementById("title").value = data.title;
             document.getElementById("date").value = data.date;
             document.getElementById("shift").value = data.shift;
-            document.getElementById("line_machine").value = data.line_machine;
+            line.value = data.line;
+            addSelectMachine();
+            machineSelect.value = data.machine;
             firstCheckCode(data.code);
             document.getElementById("description").value = data.description;
             document.getElementById("time_spend").value = data.time_spend;
@@ -147,6 +234,7 @@
         const code = document.getElementById("code");
         const code1 = document.getElementById("code1");
         const code2 = document.getElementById("code2");
+
         function firstCheckCode(codeAPI) {
             if (codeAPI == 2) {
                 code.checked = true;
@@ -172,19 +260,15 @@
         async function submitForm(event) {
             event.preventDefault(); // Impede o envio padrão do formulário
 
-            var form = document.getElementById("reportForm");
-            var formData = new FormData(form);
+            const form = document.getElementById("reportForm");
+            const formData = new FormData(form);
 
             // Verifica o estado da checkbox e ajusta o valor do campo "code" conforme necessário
-            var codeChecked = document.getElementById("code").checked;
+            const codeChecked = document.getElementById("code").checked;
             formData.set("code", codeChecked ? "2" : "1");
 
             // Prepara os dados para envio na API
-            var data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-                console.log(key + ': ' + value);
-            });
+            const data = Object.fromEntries(formData);
 
             try {
                 const result = await sendRequest(apiUrlID, 'PUT', data);
@@ -195,21 +279,6 @@
                 // Ações em caso de erro de rede ou outros
             }
         }
-        document.getElementById("reportForm").addEventListener("submit", submitForm);
-
-
-        const input = document.getElementById('title');
-        const charCount = document.getElementById('charCount');
-        input.addEventListener('input', () => {
-            const length = input.value.length;
-            charCount.textContent = `${length}/45`;
-
-            if (length > 45) {
-                charCount.classList.add('over-limit');
-            } else {
-                charCount.classList.remove('over-limit');
-            }
-        });
 
     </script>
 </body>

@@ -56,7 +56,7 @@
                 <div class="width-49 div-dimensions-form space-top">
                     <label for="machine">Machine:</label>
                     <select class="dimensions-form" id="machine" name="machine">
-                        <option value="">Select the Line</option>
+                        <option value="">Select the Machine</option>
                     </select>
                 </div>
 
@@ -99,6 +99,8 @@
             const codeCheckbox = document.getElementById('code');
             const code1 = document.getElementById('code1');
             const code2 = document.getElementById('code2');
+            const line = document.getElementById('line');
+            const machineSelect = document.getElementById('machine'); // Adicionando referência ao select de máquina
 
             input.addEventListener('input', updateCharCount);
 
@@ -106,6 +108,7 @@
             form.addEventListener('reset', confirmReset);
 
             codeCheckbox.addEventListener('change', checkCodeInterlock);
+            line.addEventListener('change', loadMachines);
 
             function updateCharCount() {
                 const length = input.value.length;
@@ -120,6 +123,49 @@
                 } else {
                     code1.style.display = "flex";
                     code2.style.display = "none";
+                }
+            }
+
+            async function loadLine() {
+                //Get data to lines
+                const apiUrlLine = await api_name('line');
+                const responseData = await loadData(apiUrlLine);
+                await addSelectLine(responseData);
+            }
+
+            async function addSelectLine(data) {
+                const selectLine = document.getElementById('line');
+                data.forEach(item => {
+                    if (item.activate == 1) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.name;
+                        selectLine.appendChild(option);
+                    }
+                });
+            }
+
+            async function loadMachines() {
+                // Limpar o select de máquinas antes de adicionar novas opções
+                machineSelect.innerHTML = '';
+
+                //Get data to machines
+                const apiUrlMachine = await api_name('machine');
+                const responseData = await loadData(apiUrlMachine);
+                await addSelectMachine(responseData);
+            }
+
+            async function addSelectMachine(data) {
+                const selectLineValue = line.value;
+                if (selectLineValue) {
+                    data.forEach(item => {
+                        if (item.activate == 1 && item.line == selectLineValue) {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.name;
+                            machineSelect.appendChild(option);
+                        }
+                    });
                 }
             }
 
@@ -142,12 +188,15 @@
                 }
             }
 
-            function confirmReset() {
-                return confirm("Are you sure you want to reset the form?");
+            function confirmReset(event) {
+                if (!confirm("Are you sure you want to reset the form?")) {
+                    event.preventDefault();
+                }
             }
 
             checkCodeInterlock(); // Inicializa o estado do código
             updateCharCount(); // Inicializa a contagem de caracteres
+            loadLine();
         });
 
     </script>

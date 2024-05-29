@@ -41,30 +41,33 @@
 
             <div class="width-49 div-dimensions-form space-top">
                 <label for="shift">Shift:</label>
-                <select class="dimensions-form" id="shift" name="shift" disabled>
-                    <option value="">Select Shift</option>
-                    <option value="M">Morning Shift</option>
-                    <option value="A">Afternoon Shift</option>
-                    <option value="N">Night Shift</option>
-                </select>
+                <input class="dimensions-form" type="text" id="shift" name="shift" disabled>
             </div>
 
-            <div class="width-100 space-top">
-                <label for="line_machine">Line or Machine:</label>
-                <input class="dimensions-form" type="text" id="line_machine" name="line_machine" disabled>
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="line">Line:</label>
+                <input class="dimensions-form" type="text" id="line" name="line" disabled>
+            </div>
+
+            <div class="width-2"></div>
+
+            <div class="width-49 div-dimensions-form space-top">
+                <label for="machine">Machine:</label>
+                <input class="dimensions-form" type="text" id="machine" name="machine" disabled>
             </div>
 
             <div class="width-100 space-top">
                 <label for="description">Fault Description:</label>
-                <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description" name="description" disabled></textarea>
+                <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description" name="description"
+                    disabled></textarea>
             </div>
-            
+
             <div class="flex-row flex-grow">
                 <div class="space-top flex-grow">
                     <label for="time_spend">Time Spent on this Job (minutes):</label>
                     <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend" disabled>
                 </div>
-    
+
                 <div class="space-top flex-column center flex-grow">
                     <label for="code">Code:</label>
                     <div class="flex-row checkbox-wrapper-25 space-top">
@@ -73,15 +76,10 @@
                         <label id="code2" for="code2">Code 2</label>
                     </div>
                 </div>
-    
+
                 <div class="div-dimensions-form space-top flex-grow">
                     <label for="status">Status:</label>
-                    <select class="dimensions-form" id="status" name="status" disabled>
-                        <option value="">Select Status</option>
-                        <option value="1">Open</option>
-                        <option value="2">Check</option>
-                        <option value="3">Closed</option>
-                    </select>
+                    <input class="dimensions-form" type="text" id="status" min="0" name="status" disabled>
                 </div>
             </div>
         </form>
@@ -99,8 +97,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             initPage();
 
-            document.getElementById('assign').addEventListener('click', ()=>document.location.replace("assignexecutor.html"));
-            document.getElementById('update').addEventListener('click', ()=>document.location.replace("update.html"));
+            document.getElementById('assign').addEventListener('click', () => document.location.replace("assignexecutor.html"));
+            document.getElementById('update').addEventListener('click', () => document.location.replace("update.html"));
             document.getElementById('delete').addEventListener('click', deleteData);
             document.getElementById('completed').addEventListener('click', completedData);
         });
@@ -119,7 +117,7 @@
 
         async function getDataFromAPI(id) {
             apiUrl = await api_name('report');
-            apiUrlID = apiUrl+`${id}/`;
+            apiUrlID = apiUrl + `${id}/`;
             const report = await loadData(apiUrlID);
             detailsReport(report);
         }
@@ -128,12 +126,42 @@
             document.getElementById("id").value = data.id;
             document.getElementById("title").value = data.title;
             document.getElementById("date").value = data.date;
-            document.getElementById("shift").value = data.shift;
-            document.getElementById("line_machine").value = data.line_machine;
+            loadShift(data.shift);
+            loadLine(data.line);
+            loadMachine(data.machine);
             firstCheckCode(data.code);
             document.getElementById("description").value = data.description;
             document.getElementById("time_spend").value = data.time_spend;
-            document.getElementById("status").value = data.status;
+            loadStatus(data.status);
+        }
+
+        function loadShift(letter) {
+            let response;
+            switch (letter) {
+                case 'M':
+                    response = 'Morning Shift'
+                    break;
+                case 'A':
+                    response = 'Afternoon Shift'
+                    break;
+                case 'N':
+                    response = 'Night Shift'
+                    break;
+            }
+            console.log(response);
+            document.getElementById("shift").value = response;
+        }
+
+        async function loadLine(number) {
+            const apiUrlLine = await api_name('line');
+            const response = await loadData(apiUrlLine + number + "/");
+            document.getElementById("line").value = response.name;
+        }
+
+        async function loadMachine(number) {
+            const apiUrlLine = await api_name('machine');
+            const response = await loadData(apiUrlLine + number + "/");
+            document.getElementById("machine").value = response.name;
         }
 
         function firstCheckCode(code) {
@@ -151,6 +179,25 @@
             }
         }
 
+        function loadStatus(number) {
+            let response;
+            switch (number) {
+                case '1':
+                    response = 'Open'
+                    break;
+                case '2':
+                    response = 'Check'
+                    break;
+                case '3':
+                    response = 'Closed'
+                    break;
+            }
+            console.log(response);
+            document.getElementById("status").value = response;
+        }
+
+        
+
         async function deleteData() {
             try {
                 const result = await sendRequestDeleteData(apiUrlID, 'DELETE');
@@ -164,7 +211,7 @@
         }
 
         async function completedData() {
-            const data  = { 'status': '3' };
+            const data = { 'status': '3' };
             try {
                 const result = await sendRequest(apiUrlID, 'PATCH', data);
                 console.log("Success:", result);
