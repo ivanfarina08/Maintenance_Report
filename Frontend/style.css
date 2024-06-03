@@ -2,6 +2,28 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+.manager{
+    border: black solid 1px;
+    padding: 0.6em;
+    border-radius: 10px;
+    margin: 0.6em;
+}
+
+.button-manager{
+    width: 9em;
+    height: 30vh;
+    margin: 0.3em;
+    font-size: 2.5em;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: white;
+}
+
+.manager button{
+    margin: 0;
+    padding: 1em;
+}
+
 .cardsReports {
     display: flex;
     flex-wrap: wrap;
@@ -80,6 +102,7 @@
     color: white;
     font-size: 1.25em;
     letter-spacing: 1px;
+    margin: 0.3em;
 }
 
 .button-create-report:hover {
@@ -100,6 +123,22 @@
 
 #executorButton:hover{
     background-color: #A10800;
+}
+
+#lineButton{
+    background-color: #008ee1;
+}
+
+#lineButton:hover{
+    background-color: #1c7db4;
+}
+
+#machineButton{
+    background-color: #00e15e;
+}
+
+#machineButton:hover{
+    background-color: #27c468;
 }
 
 .button-describe {
@@ -411,8 +450,15 @@ button:hover {
     flex-direction: row;
 }
 
+.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
 .flex-grow{
-    flex-grow: 2;
+    flex-grow: 1;
 }
 
 .checkbox-wrapper-25 input[type="checkbox"] {
