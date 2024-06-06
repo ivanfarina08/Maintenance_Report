@@ -112,27 +112,6 @@
             localStorage.setItem('id', id);
             window.location.href = "details.html";
         }
-
-        async function exportDataToCSV() {
-            const transformedData = report.map(transformData);
-            const csvData = convertJSONToCSV(transformedData);
-            downloadCSV(csvData, 'report_machines.csv');
-        }
-
-        function transformData(item) {
-            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
-            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
-            const codes = { '1': 'Code 1', '2': 'Code 2' };
-
-            item.shift = shifts[item.shift] || item.shift;
-            item.status = statuses[item.status] || item.status;
-            item.code = codes[item.code] || item.code;
-            item.executors = item.executors.map((item) => {
-                return item.name;
-            });
-
-            return item;
-        }
     </script>
 </body>
 

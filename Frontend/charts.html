@@ -16,106 +16,236 @@
             </div>
         </header>
 
-        <div class="flex-row">
+        <div class="flex-column">
             <div class="div-button-create-report">
                 <a class="button-create-report" href="index.html">Return to home</a>
             </div>
 
-            <div class="div-button-create-report">
-                <button class="button-create-report" id="executorChart">Executors</button>
+            <div>
+                <h1>View Chart</h1>
             </div>
 
-            <div class="div-button-create-report">
-                <button class="button-create-report" id="executorButton">Line and Machines</button>
+            <div class="flex-row">
+                <div class="div-button-create-report">
+                    <button class="button-create-report" id="executorChart">Executors</button>
+                </div>
+
+                <div class="div-button-create-report">
+                    <button class="button-create-report" id="lineChart">Line</button>
+                </div>
+
+                <div class="div-button-create-report">
+                    <button class="button-create-report" id="machineChart">Machines</button>
+                </div>
             </div>
         </div>
+
         <div class="center space-top flex-column">
-            <h2 id="title-chart"></h2>
-            <div id="top_x_div" style="width: 900px; height: 500px;"></div>
+            <div id="top_x_div" style="max-width: 90%; min-width: 90%; min-height: 50vh;">
+            </div>
         </div>
     </div>
 
     <!--Load the AJAX API-->
+    <script src="shared_script.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-
-        const API_EXECUTOR_URL = 'http://127.0.0.1:8000/api/executor/';
-        const API_EXECUTOR_REPORT_URL = 'http://127.0.0.1:8000/api/executorreports/';
-        let executors = [];
+        let arrayChart = [];
+        let titleChartGlobal = '';
+        let chart;
+        let data;
+        let options;
+        let selectMachine = false;
 
         document.addEventListener('DOMContentLoaded', function () {
-            loadData();
-            document.getElementById('executorChart').addEventListener('click', drawStuff);
+            document.getElementById('executorChart').addEventListener('click', executorChart);
+            document.getElementById('lineChart').addEventListener('click', lineChart);
+            document.getElementById('machineChart').addEventListener('click', machineChart);
         });
 
-        async function loadData() {
+        async function executorChart() {
             try {
-                const executorData = await fetchData(API_EXECUTOR_URL);
-                executors.push(['', '']);
-                createArray(executorData);
-                console.log(executors);
-
-                const executorReportData = await fetchData(API_EXECUTOR_REPORT_URL);
-                executorReportData.map(transformData);
+                selectMachine = false;
+                document.getElementById('top_x_div').innerHTML = '';
+                initArrayChart();
+                const executor = await getExecutor();
+                const executorReport = await getExecutorReport();
+                createArray(executor);
+                executorReport.map(transformDataExecutor);
+                drawStuff('The number of reports by each executor');
             } catch (error) {
                 console.error('Error loading data:', error);
             }
         }
 
-        async function fetchData(url) {
+        async function reportChart() {
             try {
-                let response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return await response.json();
+                alert("Ainda não temos")
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function lineChart() {
+            try {
+                selectMachine = false;
+                document.getElementById('top_x_div').innerHTML = '';
+                initArrayChart()
+                const report = await getReport();
+                const line = await getLine();
+                createArray(line);
+                report.map(transformDataLine);
+                drawStuff('The number of reports by each lines');
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function machineChart() {
+            try {
+                selectMachine = true;
+                document.getElementById('top_x_div').innerHTML = '';
+                initArrayChart()
+                const reports = await getReport();
+                const machines = await getMachine();
+                const lines = await getLine();
+
+                lines.forEach(line => {
+                    machines.forEach(machine => {
+                        console.log(machine.line_name == line.name);
+                        if (machine.line_name == line.name) {
+                            arrayChart.push([machine.name, 0]);
+                        }
+                    })
+                    reports.map(transformDataMachine);//carrega a quantidade por nome da maquina
+                    drawStuff(line.name);
+                    initArrayChart();
+                });
+            } catch (error) {
+                console.error('Error loading data:', error);
             }
         }
 
         function createArray(data) {
             data.forEach(item => {
-                executors.push([item.name, 0]);
+                arrayChart.push([item.name, 0]);
             });
         }
 
-        function transformData(item) {
-            executors.find((element) => {
+        function transformDataExecutor(item) {
+            arrayChart.find((element) => {
                 if (element[0] == item.idExecutor.name) {
                     element[1]++;
-                    console.log('element.name: ' + element[0]);
-                    console.log('element.quant: ' + element[1]);
                 }
             });
         }
 
-        google.charts.load('current', { 'packages': ['bar'] });
+        function transformDataLine(item) {
+            arrayChart.find((element) => {
+                console.log('item: ' + item.line_name);
+                console.log('element: ' + element[0]);
+                if (element[0] == item.line_name) {
+                    element[1]++;
+                }
+            });
+        }
 
-        function drawStuff() {
+        function transformDataMachine(item) {
+            arrayChart.find((element) => {
+                if (element[0] == item.machine_name) {
+                    element[1]++;
+                }
+            });
+        }
 
-            var data = new google.visualization.arrayToDataTable(executors);
+        async function getExecutor() {
+            const apiUrl = await api_name('executor');
+            return await loadData(apiUrl);
+        }
 
-            var options = {
+        async function getExecutorReport() {
+            const apiUrl = await api_name('executor_report_with_data');
+            return await loadData(apiUrl);
+        }
+
+        async function getReport() {
+            const apiUrl = await api_name('report');
+            return await loadData(apiUrl);
+        }
+
+        async function getLine() {
+            const apiUrl = await api_name('line');
+            return await loadData(apiUrl);
+        }
+
+        async function getMachine() {
+            const apiUrl = await api_name('machine');
+            return await loadData(apiUrl);
+        }
+
+        function initArrayChart() {
+            arrayChart = [];
+            arrayChart.push(['', '']);
+        }
+
+        // Carrega a biblioteca de visualização e o pacote de gráficos de barras
+        google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+        function drawStuff(titleChart) {
+            titleChartGlobal = titleChart;
+
+            // Supondo que arrayChart seja definido em algum lugar no seu código
+            data = new google.visualization.arrayToDataTable(arrayChart);
+
+            options = {
                 title: '',
-                width: 900,
+                chartArea: { width: '80%', height: '500px' },
+                colors: ['black'], // Cor de fundo do gráfico
                 legend: { position: 'none' },
-                chart: {
+                hAxis: {
                     title: '',
-                    subtitle: ''
+                    slantedText: true,
+                    slantedTextAngle: 45, // Ajusta o ângulo dos rótulos para evitar sobreposição
+                    format: 'decimal', // Exibir apenas números inteiros
+                    viewWindow: {
+                        min: 0 // Garante que o eixo comece do zero
+                    },
+                    gridlines: {
+                        count: 5 // Define o número de linhas da grade horizontal
+                    }
                 },
-                axes: {
-                    x: {
-                        0: { side: 'bottom', label: '' } // Top x-axis.
+                vAxis: {
+                    viewWindow: {
+                        min: 0 // Garante que o eixo comece do zero
+                    },
+                    gridlines: {
+                        count: 5 // Define o número de linhas da grade horizontal
                     }
                 },
                 bar: { groupWidth: "90%" }
             };
 
-            var chart = new google.charts.Bar(document.getElementById('top_x_div'));
-            document.getElementById("title-chart").innerHTML = 'The number of reports by each executor'
+            const charts = document.createElement('div');
+            chart = new google.visualization.BarChart(charts);
+            const title = document.createElement('div');
+            title.innerHTML = '<h3>' + titleChart + '</h3>';
+            document.getElementById('top_x_div').appendChild(title);
+            document.getElementById('top_x_div').appendChild(charts);
             chart.draw(data, options);
-        };
+        }
+
+        // Função para redimensionar o gráfico conforme a janela é redimensionada
+        function resizeChart() {
+            if (selectMachine) {
+                machineChart(); //erro de adicionar mais de uma vez os graficos
+            }
+            else if (chart) {
+                chart.draw(data, options);
+            }
+        }
+
+        // Adiciona um listener para redimensionar o gráfico de forma responsiva
+        window.addEventListener('resize', resizeChart);
     </script>
 </body>
 

@@ -70,7 +70,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initPage();
-            document.getElementById('exportButton').addEventListener('click', exportDataToCSV);
         });
 
         let executor_report_with_data = [];
@@ -83,40 +82,11 @@
             addInTable(responseData);
         }
 
-        async function exportDataToCSV() {
-            executor_report_with_data = await loadData(apiUrl)
-            const transformedData = executor_report_with_data.map(transformData);
-            const csvData = convertJSONToCSV(transformedData);
-            downloadCSV(csvData, 'report_executors.csv');
-        }
-
-        function transformData(item) {
-            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
-            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
-            const codes = { '1': 'Code 1', '2': 'Code 2' };
-
-            item.idReport.shift = shifts[item.idReport.shift] || item.idReport.shift;
-            item.idReport.status = statuses[item.idReport.status] || item.idReport.status;
-            item.idReport.code = codes[item.idReport.code] || item.idReport.code;
-
-            item.idExecutor = item.idExecutor.name;
-            item.id_report = item.idReport.id;
-            item.title = item.idReport.title;
-            item.date = item.idReport.date;
-            item.shift = item.idReport.shift;
-            item.line_machine = item.idReport.line_machine;
-            item.code = item.idReport.code;
-            item.description = item.idReport.description;
-            item.time_spend = item.idReport.time_spend;
-            item.status = item.idReport.status;
-            delete item.idReport;
-            return item;
-        }
-
         function addInTable(data) {
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
-                if (item.activate == 1) {
+                console.log(item);
+                if (item.activated == '1') {
                     executors.set(item.id, item.name);
                     const newRow = table.insertRow();
                     const newCell1 = newRow.insertCell(0);
@@ -172,7 +142,7 @@
             
             const apiUrlID = apiUrl+`${id}/`;
 
-            const url = updateForm ? apiUrlID : apiUrlExecutor;
+            const url = updateForm ? apiUrlID : apiUrl;
             const method = updateForm ? "PUT" : "POST";
 
             try {

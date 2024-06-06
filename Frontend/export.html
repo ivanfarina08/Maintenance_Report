@@ -39,21 +39,39 @@
     <script src="shared_script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('executorButton').addEventListener('click', getReports);
-            document.getElementById('reportsButton').addEventListener('click', exportDataToCSV);
+            document.getElementById('executorButton').addEventListener('click', getExecutors);
+            document.getElementById('reportsButton').addEventListener('click', getReports);
             document.getElementById('chartsButton').addEventListener('click', () => {
                 window.location.href = "charts.html";
             });
         });
 
+        async function getExecutors() {
+            const apiUrl = await api_name('executor');
+            let executor = await loadData(apiUrl);
+            console.log(executor);
+            if (executor.length>0) {
+                let transformedData = executor.map(transformDataExecutor);
+                await exportDataToCSV(transformedData, 'report_executors.csv');
+            }
+            else{
+                alert('There are no executors');
+            }
+        }
+
         async function getReports() {
             const apiUrl = await api_name('report');
             let report = await loadData(apiUrl);
-            let transformedData = report.map(transformData);
-            await exportDataToCSV(transformedData, 'report_machines.csv');
+            if (report.length>0) {
+                let transformedData = report.map(transformDataReport);
+                await exportDataToCSV(transformedData, 'report_machines.csv');
+            }
+            else{
+                alert('There are no reports');
+            }
         }
 
-        function transformData(item) {
+        function transformDataReport(item) {
             const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
             const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
             const codes = { '1': 'Code 1', '2': 'Code 2' };
@@ -68,12 +86,35 @@
             return item;
         }
 
+        function transformDataExecutor(item) {
+            const shifts = { 'M': 'Morning', 'A': 'Afternoon', 'N': 'Night' };
+            const statuses = { '1': 'Open', '2': 'Check', '3': 'Closed' };
+            const codes = { '1': 'Code 1', '2': 'Code 2' };
+
+            item.idReport.shift = shifts[item.idReport.shift] || item.idReport.shift;
+            item.idReport.status = statuses[item.idReport.status] || item.idReport.status;
+            item.idReport.code = codes[item.idReport.code] || item.idReport.code;
+
+            item.idExecutor = item.idExecutor.name;
+            item.id_report = item.idReport.id;
+            item.title = item.idReport.title;
+            item.date = item.idReport.date;
+            item.shift = item.idReport.shift;
+            item.line_machine = item.idReport.line_machine;
+            item.code = item.idReport.code;
+            item.description = item.idReport.description;
+            item.time_spend = item.idReport.time_spend;
+            item.status = item.idReport.status;
+            delete item.idReport;
+            return item;
+        }
+
         async function exportDataToCSV(data, name) {
             const csvData = convertJSONToCSV(data);
             downloadCSV(csvData, name);
         }
 
-        
+
     </script>
 </body>
 

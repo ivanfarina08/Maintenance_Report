@@ -7,6 +7,8 @@ class ExecutorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MaintenanceReportSerializer(serializers.ModelSerializer):
+    line_name = serializers.CharField(source='line.name', read_only=True)
+    machine_name = serializers.CharField(source='machine.name', read_only=True)
     executors = ExecutorSerializer(many=True, read_only=True)
     class Meta:
         model = MaintenanceReport
