@@ -47,12 +47,13 @@
         });
 
         async function getExecutors() {
-            const apiUrl = await api_name('executor');
+            const apiUrl = await api_name('executor_report_with_data');
             let executor = await loadData(apiUrl);
             console.log(executor);
             if (executor.length>0) {
                 let transformedData = executor.map(transformDataExecutor);
-                await exportDataToCSV(transformedData, 'report_executors.csv');
+                const csvData = await convertJSONToCSV(transformedData);
+                await downloadCSV(csvData, 'report_executors.csv');
             }
             else{
                 alert('There are no executors');
@@ -64,7 +65,8 @@
             let report = await loadData(apiUrl);
             if (report.length>0) {
                 let transformedData = report.map(transformDataReport);
-                await exportDataToCSV(transformedData, 'report_machines.csv');
+                const csvData = await convertJSONToCSV(transformedData);
+                await downloadCSV(csvData, 'report_machines.csv');
             }
             else{
                 alert('There are no reports');
@@ -100,7 +102,8 @@
             item.title = item.idReport.title;
             item.date = item.idReport.date;
             item.shift = item.idReport.shift;
-            item.line_machine = item.idReport.line_machine;
+            item.line = item.idReport.line_name;
+            item.machine = item.idReport.machine_name;
             item.code = item.idReport.code;
             item.description = item.idReport.description;
             item.time_spend = item.idReport.time_spend;

@@ -35,6 +35,7 @@
             <h2>Create or Update Executor</h2>
             <form action="" class="flex-row" id="reportForm">
                 <input type="hidden" name="id" id="id_hidden">
+                <input type="hidden" name="activated" id="activated_hidden" value="1">
                 <div class="width-75">
                     <input class="dimensions-form" type="text" id="name" name="name" placeholder="Executor's name"
                         maxlength="45">
@@ -85,27 +86,30 @@
         function addInTable(data) {
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
-                console.log(item);
-                if (item.activated == '1') {
-                    executors.set(item.id, item.name);
-                    const newRow = table.insertRow();
-                    const newCell1 = newRow.insertCell(0);
-                    const newCell2 = newRow.insertCell(1);
+                executors.set(item.id, item.name);
+                const newRow = table.insertRow();
+                const newCell1 = newRow.insertCell(0);
+                const newCell2 = newRow.insertCell(1);
 
-                    newCell1.textContent = item.name; // Replace 'column1' with actual data field
-                    newCell2.className = 'center'
-                    newCell2.innerHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
-                        '<span class="material-symbols-outlined">' +
-                        'edit_square' +
-                        '</span>' +
-                        '</button>' +
-                        '<div class="width-2"></div>' +
+                newCell1.textContent = item.name; // Replace 'column1' with actual data field
+                newCell2.className = 'center';
+
+                let buttonsHTML = '<button id="update" onclick="updateData(' + item.id + ')">' +
+                    '<span class="material-symbols-outlined">' +
+                    'edit_square' +
+                    '</span>' +
+                    '</button>';
+
+                if (item.activated != 2) {
+                    buttonsHTML += '<div class="width-2"></div>' +
                         '<button id="delete" onclick="deleteData(' + item.id + ')">' +
                         '<span class="material-symbols-outlined">' +
                         'delete' +
                         '</span>' +
                         '</button>';
                 }
+
+                newCell2.innerHTML = buttonsHTML;
             });
 
             // Alternate row coloring
@@ -132,15 +136,19 @@
         let updateForm = false;
         async function submitForm(event) {
             event.preventDefault(); // Impede o envio padrão do formulário
-
+            let name = document.getElementById("name");
+            if (name.value.includes(' (INACTIVE)')) {
+                name.value = name.value.replace(' (INACTIVE)', '');
+            }
+            console.log(name.value);
             const form = document.getElementById("reportForm");
             const formData = new FormData(form);
             const id = document.getElementById('id_hidden').textContent;
 
             // Prepara os dados para envio na API
             const data = Object.fromEntries(formData.entries());
-            
-            const apiUrlID = apiUrl+`${id}/`;
+
+            const apiUrlID = apiUrl + `${id}/`;
 
             const url = updateForm ? apiUrlID : apiUrl;
             const method = updateForm ? "PUT" : "POST";
@@ -159,8 +167,8 @@
 
         async function deleteData(id) {
             var name = executors.get(id) + ' (INACTIVE)';
-            var data = {'name': name, 'activate': '2'};
-            const apiUrlID = apiUrl+`${id}/`
+            var data = { 'name': name, 'activated': '2' };
+            const apiUrlID = apiUrl + `${id}/`
             try {
                 const result = await sendRequest(apiUrlID, 'PATCH', data);
                 console.log("Success:", result);

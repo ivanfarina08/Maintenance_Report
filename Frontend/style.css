@@ -141,6 +141,15 @@
     background-color: #27c468;
 }
 
+.chart{
+    min-height: 40vh;
+}
+
+.title-chart{
+    font-size: large;
+    text-decoration: underline;
+}
+
 .button-describe {
     display: block;
     /* Make the link behave like a block element */

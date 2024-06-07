@@ -90,7 +90,7 @@
             try {
                 selectMachine = false;
                 document.getElementById('top_x_div').innerHTML = '';
-                initArrayChart()
+                initArrayChart();
                 const report = await getReport();
                 const line = await getLine();
                 createArray(line);
@@ -105,7 +105,7 @@
             try {
                 selectMachine = true;
                 document.getElementById('top_x_div').innerHTML = '';
-                initArrayChart()
+                initArrayChart();
                 const reports = await getReport();
                 const machines = await getMachine();
                 const lines = await getLine();
@@ -226,8 +226,10 @@
             };
 
             const charts = document.createElement('div');
+            charts.className = 'chart';
             chart = new google.visualization.BarChart(charts);
             const title = document.createElement('div');
+            title.className = 'title-chart';
             title.innerHTML = '<h3>' + titleChart + '</h3>';
             document.getElementById('top_x_div').appendChild(title);
             document.getElementById('top_x_div').appendChild(charts);

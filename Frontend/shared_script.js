@@ -85,6 +85,7 @@ async function sendRequest(url, method, data) {
         throw new Error(`Error: ${response.statusText}`);
     }
 
+    showMessage(method);
     return response.json();
 }
 
@@ -96,4 +97,26 @@ async function sendRequestDeleteData(url, method) {
     if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
     }
+}
+
+function showMessage(method) {
+    let response = '';
+    switch (method) {
+        case 'POST':
+            response = 'Created';
+            break;
+
+        case 'PATCH':
+            response = 'Updated';
+            break;
+
+        case 'PUT':
+            response = 'Updated';
+            break;
+
+        case 'DELETE':
+            response = 'Deleted';
+            break;
+    }
+    alert(response);
 }
