@@ -25,10 +25,6 @@
             <div class="div-button-create-report">
                 <a class="button-create-report" href="index.html">Return to home</a>
             </div>
-
-            <div class="div-button-create-report">
-                <button class="button-create-report" id="exportButton">Export Data to CSV</button>
-            </div>
         </div>
 
         <div class="space-top flex-column">
@@ -41,6 +37,7 @@
                     </select>
                     <input class="dimensions-form" type="text" id="name" name="name" placeholder="Machine's Name"
                         maxlength="45">
+                    <div class="charCount" id="charCount">0/45</div>
                 </div>
                 <div class="width-25 center">
                     <input type="submit" value="Create" class="width-100 dimensions-form btn-create" id="btn-machine">
@@ -71,6 +68,9 @@
     <script src="shared_script.js"></script>
     <script>
 
+        const input = document.getElementById('name');
+        const charCount = document.getElementById('charCount');
+
         document.addEventListener('DOMContentLoaded', () => {
             initPage();
         });
@@ -78,7 +78,7 @@
         let machine_report_with_data = [];
         let machines = [];
         let apiUrl;
-        
+
         //line variables
         let apiUrlLine;
 
@@ -98,7 +98,7 @@
             const table = document.getElementById('elegantTable').getElementsByTagName('tbody')[0];
             data.forEach(item => {
                 if (item.activate == 1) {
-                    machines[item.id] = {'line': item.line, 'name': item.name};
+                    machines[item.id] = { 'line': item.line, 'name': item.name };
                     const newRow = table.insertRow();
                     const newCell1 = newRow.insertCell(0);
                     const newCell2 = newRow.insertCell(1);
@@ -128,7 +128,7 @@
             }
         }
 
-        function loadLines(data){
+        function loadLines(data) {
             const select = document.getElementById('line');
             data.forEach(item => {
                 if (item.activate == 1) {
@@ -150,8 +150,8 @@
 
             // Prepara os dados para envio na API
             const data = Object.fromEntries(formData.entries());
-            
-            const apiUrlID = apiUrl+`${id}/`;
+
+            const apiUrlID = apiUrl + `${id}/`;
 
             const url = updateForm ? apiUrlID : apiUrl;
             const method = updateForm ? "PUT" : "POST";
@@ -170,8 +170,8 @@
 
         async function deleteData(id) {
             var name = machines[id].name + ' (INACTIVE)';
-            var data = {'name': name, 'activate': '2'};
-            const apiUrlID = apiUrl+`${id}/`
+            var data = { 'name': name, 'activate': '2' };
+            const apiUrlID = apiUrl + `${id}/`
             try {
                 const result = await sendRequest(apiUrlID, 'PATCH', data);
                 console.log("Success:", result);
@@ -190,6 +190,17 @@
             document.getElementById("btn-machine").className = 'width-100 dimensions-form btn-update'
             updateForm = true;
         }
+
+        input.addEventListener('input', () => {
+            const length = input.value.length;
+            charCount.textContent = `${length}/45`;
+
+            if (length > 45) {
+                charCount.classList.add('over-limit');
+            } else {
+                charCount.classList.remove('over-limit');
+            }
+        });
     </script>
 
 </body>

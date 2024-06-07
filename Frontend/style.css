@@ -117,27 +117,43 @@
     background-color: #6ab66d;
 }
 
-#executorButton{
+#executorButton, #executorChart{
     background-color: #E10B00;
 }
 
-#executorButton:hover{
+#executorButton:hover, #executorChart:hover{
     background-color: #A10800;
 }
 
-#lineButton{
+#lineButton, #lineChart{
     background-color: #008ee1;
 }
 
-#lineButton:hover{
+#lineButton:hover, #lineChart:hover{
     background-color: #1c7db4;
 }
 
-#machineButton{
+#machineButton, #machineChart{
     background-color: #00e15e;
 }
 
-#machineButton:hover{
+#machineButton:hover, #machineChart:hover{
+    background-color: #27c468;
+}
+
+#reportsButton{
+    background-color: #008ee1;
+}
+
+#reportsButton:hover{
+    background-color: #1c7db4;
+}
+
+#chartsButton{
+    background-color: #00e15e;
+}
+
+#chartsButton:hover{
     background-color: #27c468;
 }
 

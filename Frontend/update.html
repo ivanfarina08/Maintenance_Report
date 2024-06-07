@@ -72,12 +72,13 @@
                 <label for="description">Fault Description:</label>
                 <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description"
                     name="description"></textarea>
+                <div class="char-count" id="charCount-description">0/200</div>
             </div>
 
             <div class="flex-row flex-grow">
                 <div class="space-top flex-grow">
                     <label for="time_spend">Time Spent on this Job (minutes):</label>
-                    <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend">
+                    <input class="dimensions-form" type="number" id="time_spend" min="0" max="99" name="time_spend">
                 </div>
 
                 <div class="space-top flex-column center flex-grow">
@@ -119,16 +120,23 @@
 
             const input = document.getElementById('title');
             const charCount = document.getElementById('charCount');
-            input.addEventListener('input', () => {
+            const description = document.getElementById('description');
+            const charCountDescription = document.getElementById('charCount-description');
+
+            input.addEventListener('input', updateCharCount);
+            description.addEventListener('input', updateCharCountDescription);
+
+            function updateCharCount() {
                 const length = input.value.length;
                 charCount.textContent = `${length}/45`;
+                charCount.classList.toggle('over-limit', length > 45);
+            }
 
-                if (length > 45) {
-                    charCount.classList.add('over-limit');
-                } else {
-                    charCount.classList.remove('over-limit');
-                }
-            });
+            function updateCharCountDescription() {
+                const length = description.value.length;
+                charCountDescription.textContent = `${length}/200`;
+                charCountDescription.classList.toggle('over-limit', length > 200);
+            }
 
             document.getElementById('line').addEventListener('change', addSelectMachine);
         });
@@ -138,6 +146,8 @@
         let line;
         let machineSelect;
         let machines = [];
+
+
 
         async function initPage() {
             line = document.getElementById('line');
@@ -190,7 +200,7 @@
         async function addMachines(data) {
             data.forEach(item => {
                 if (item.activate == 1) {
-                    machines[item.id] = {'id': item.id, 'name': item.name, 'line': item.line, 'line_name': item.line_name };
+                    machines[item.id] = { 'id': item.id, 'name': item.name, 'line': item.line, 'line_name': item.line_name };
                 }
             });
         }

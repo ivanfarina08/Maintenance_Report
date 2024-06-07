@@ -64,11 +64,12 @@
                     <label for="description">Fault Description:</label>
                     <textarea class="dimensions-form dimensions-form-textarea" rows="5" id="description"
                         name="description"></textarea>
+                    <div class="char-count" id="charCount-description">0/200</div>
                 </div>
 
                 <div class="width-49 space-top">
                     <label for="time_spend">Time Spent on this Job (minutes):</label>
-                    <input class="dimensions-form" type="number" id="time_spend" min="0" name="time_spend">
+                    <input class="dimensions-form" type="number" id="time_spend" min="0" max="99" name="time_spend">
                 </div>
 
                 <div class="width-2"></div>
@@ -100,9 +101,12 @@
             const code1 = document.getElementById('code1');
             const code2 = document.getElementById('code2');
             const line = document.getElementById('line');
-            const machineSelect = document.getElementById('machine'); // Adicionando referência ao select de máquina
+            const machineSelect = document.getElementById('machine');
+            const description = document.getElementById('description');
+            const charCountDescription = document.getElementById('charCount-description');
 
             input.addEventListener('input', updateCharCount);
+            description.addEventListener('input', updateCharCountDescription);
 
             form.addEventListener('submit', submitForm);
             form.addEventListener('reset', confirmReset);
@@ -114,6 +118,12 @@
                 const length = input.value.length;
                 charCount.textContent = `${length}/45`;
                 charCount.classList.toggle('over-limit', length > 45);
+            }
+
+            function updateCharCountDescription() {
+                const length = description.value.length;
+                charCountDescription.textContent = `${length}/200`;
+                charCountDescription.classList.toggle('over-limit', length > 200);
             }
 
             function checkCodeInterlock() {

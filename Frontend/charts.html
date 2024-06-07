@@ -80,7 +80,7 @@
 
         async function reportChart() {
             try {
-                alert("Ainda não temos")
+                alert("Ainda não temos");
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -95,7 +95,7 @@
                 const line = await getLine();
                 createArray(line);
                 report.map(transformDataLine);
-                drawStuff('The number of reports by each lines');
+                drawStuff('The number of reports by each line');
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -110,17 +110,20 @@
                 const machines = await getMachine();
                 const lines = await getLine();
 
-                lines.forEach(line => {
-                    machines.forEach(machine => {
-                        console.log(machine.line_name == line.name);
-                        if (machine.line_name == line.name) {
-                            arrayChart.push([machine.name, 0]);
+                if (lines.length > 0) {
+                    for (const line of lines) {
+                        for (const machine of machines) {
+                            if (machine.line_name == line.name) {
+                                arrayChart.push([machine.name, 0]);
+                            }
                         }
-                    })
-                    reports.map(transformDataMachine);//carrega a quantidade por nome da maquina
-                    drawStuff(line.name);
-                    initArrayChart();
-                });
+                        reports.map(transformDataMachine); // Carrega a quantidade por nome da máquina
+                        drawStuff(line.name);
+                        initArrayChart();
+                    }
+                } else {
+                    drawStuff('Machine Chart');
+                }
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -133,7 +136,7 @@
         }
 
         function transformDataExecutor(item) {
-            arrayChart.find((element) => {
+            arrayChart.find(element => {
                 if (element[0] == item.idExecutor.name) {
                     element[1]++;
                 }
@@ -141,9 +144,7 @@
         }
 
         function transformDataLine(item) {
-            arrayChart.find((element) => {
-                console.log('item: ' + item.line_name);
-                console.log('element: ' + element[0]);
+            arrayChart.find(element => {
                 if (element[0] == item.line_name) {
                     element[1]++;
                 }
@@ -151,7 +152,7 @@
         }
 
         function transformDataMachine(item) {
-            arrayChart.find((element) => {
+            arrayChart.find(element => {
                 if (element[0] == item.machine_name) {
                     element[1]++;
                 }
@@ -184,64 +185,61 @@
         }
 
         function initArrayChart() {
-            arrayChart = [];
-            arrayChart.push(['', '']);
+            arrayChart = [['', '']];
         }
 
         // Carrega a biblioteca de visualização e o pacote de gráficos de barras
         google.charts.load('current', { packages: ['corechart', 'bar'] });
 
         function drawStuff(titleChart) {
-            titleChartGlobal = titleChart;
-
-            // Supondo que arrayChart seja definido em algum lugar no seu código
-            data = new google.visualization.arrayToDataTable(arrayChart);
-
-            options = {
-                title: '',
-                chartArea: { width: '80%', height: '500px' },
-                colors: ['black'], // Cor de fundo do gráfico
-                legend: { position: 'none' },
-                hAxis: {
-                    title: '',
-                    slantedText: true,
-                    slantedTextAngle: 45, // Ajusta o ângulo dos rótulos para evitar sobreposição
-                    format: 'decimal', // Exibir apenas números inteiros
-                    viewWindow: {
-                        min: 0 // Garante que o eixo comece do zero
-                    },
-                    gridlines: {
-                        count: 5 // Define o número de linhas da grade horizontal
-                    }
-                },
-                vAxis: {
-                    viewWindow: {
-                        min: 0 // Garante que o eixo comece do zero
-                    },
-                    gridlines: {
-                        count: 5 // Define o número de linhas da grade horizontal
-                    }
-                },
-                bar: { groupWidth: "90%" }
-            };
-
-            const charts = document.createElement('div');
-            charts.className = 'chart';
-            chart = new google.visualization.BarChart(charts);
             const title = document.createElement('div');
             title.className = 'title-chart';
             title.innerHTML = '<h3>' + titleChart + '</h3>';
             document.getElementById('top_x_div').appendChild(title);
+            const charts = document.createElement('div');
+            charts.className = 'chart';
             document.getElementById('top_x_div').appendChild(charts);
-            chart.draw(data, options);
+
+            if (arrayChart.length > 1) {
+                titleChartGlobal = titleChart;
+                data = google.visualization.arrayToDataTable(arrayChart);
+                options = {
+                    title: '',
+                    chartArea: { width: '80%', height: '500px' },
+                    colors: ['black'],
+                    legend: { position: 'none' },
+                    hAxis: {
+                        title: '',
+                        slantedText: true,
+                        slantedTextAngle: 45,
+                        format: 'decimal',
+                        viewWindow: {
+                            min: 0
+                        },
+                        gridlines: {
+                            count: 5
+                        }
+                    },
+                    vAxis: {
+                        viewWindow: {
+                            min: 0
+                        },
+                        gridlines: {
+                            count: 5
+                        }
+                    },
+                    bar: { groupWidth: "90%" }
+                };
+                chart = new google.visualization.BarChart(charts);
+                chart.draw(data, options);
+            } else {
+                charts.innerHTML = '<p> There are no data</p>';
+            }
         }
 
         // Função para redimensionar o gráfico conforme a janela é redimensionada
         function resizeChart() {
-            if (selectMachine) {
-                machineChart(); //erro de adicionar mais de uma vez os graficos
-            }
-            else if (chart) {
+            if (chart) {
                 chart.draw(data, options);
             }
         }
