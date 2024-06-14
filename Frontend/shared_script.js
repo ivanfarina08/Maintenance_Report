@@ -72,7 +72,7 @@ async function downloadCSV(csvData, filename) {
 }
 
 
-async function sendRequest(url, method, data) {
+/*async function sendRequest(url, method, data) {
     const response = await fetch(url, {
         method: method,
         headers: {
@@ -82,11 +82,32 @@ async function sendRequest(url, method, data) {
     });
 
     if (!response.ok) {
+        showMessage(response.headers);
+        throw new Error(`Error: ${response.statusText}`);        
+    }
+
+    showMessage(response);
+    return response.json();
+}*/
+
+async function sendRequest(url, method, data) {
+    const response = await fetch(url, {
+        method: method,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+        showMessage(responseData.errors || responseData);
         throw new Error(`Error: ${response.statusText}`);
     }
 
-    showMessage(method);
-    return response.json();
+    showMessage(responseData);
+    return responseData;
 }
 
 async function sendRequestDeleteData(url, method) {
@@ -99,8 +120,8 @@ async function sendRequestDeleteData(url, method) {
     }
 }
 
-function showMessage(method) {
-    let response = '';
+/*function showMessage(response) {
+    /*let response = '';
     switch (method) {
         case 'POST':
             response = 'Created';
@@ -119,4 +140,27 @@ function showMessage(method) {
             break;
     }
     alert(response);
+}*/
+
+function showMessage(message) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.innerHTML = '';
+
+    if (typeof message === 'object') {
+        // Se a mensagem for um objeto, assuma que é um conjunto de erros de validação
+        for (const [field, errors] of Object.entries(message)) {
+            const errorMessages = errors.join(', ');
+            messageDiv.innerHTML += `<p class="response-user"><strong>${field}:</strong> ${errorMessages}</p>`;
+        }
+    } else {
+        // Caso contrário, apenas mostre a mensagem diretamente
+        messageDiv.innerText = message;
+    }
+
+    messageDiv.style.display = 'block'; // Certifique-se de que a div esteja visível
+
+    // Use setTimeout para esconder a mensagem depois de `duration` milissegundos
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
 }
