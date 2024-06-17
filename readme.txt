@@ -31,3 +31,6 @@ cd frontend
 
 criar servidor http:
 python -m http.server 8080
+
+Abra no navegador o link
+http://localhost:8080/
