@@ -161,7 +161,7 @@
             try {
                 const result = await sendRequest(url, method, data);
                 console.log("Success:", result);
-                // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
+                window.location.reload();
             } catch (error) {
                 console.error("Fetch error:", error);
                 // Ações em caso de erro de rede ou outros

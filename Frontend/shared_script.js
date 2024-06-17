@@ -102,11 +102,9 @@ async function sendRequest(url, method, data) {
     const responseData = await response.json();
 
     if (!response.ok) {
-        showMessage(responseData.errors || responseData);
+        await showMessage(responseData.errors || responseData);
         throw new Error(`Error: ${response.statusText}`);
     }
-
-    showMessage(responseData);
     return responseData;
 }
 
@@ -120,29 +118,7 @@ async function sendRequestDeleteData(url, method) {
     }
 }
 
-/*function showMessage(response) {
-    /*let response = '';
-    switch (method) {
-        case 'POST':
-            response = 'Created';
-            break;
-
-        case 'PATCH':
-            response = 'Updated';
-            break;
-
-        case 'PUT':
-            response = 'Updated';
-            break;
-
-        case 'DELETE':
-            response = 'Deleted';
-            break;
-    }
-    alert(response);
-}*/
-
-function showMessage(message) {
+async function showMessage(message) {
     const messageDiv = document.getElementById('message');
     messageDiv.innerHTML = '';
 

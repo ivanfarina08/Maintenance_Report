@@ -57,8 +57,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',   # Permite solicitações de qualquer origem
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',   # Permite solicitações de qualquer origem
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [

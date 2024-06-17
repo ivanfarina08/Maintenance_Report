@@ -1,3 +1,6 @@
+Abra a pasta backend
+cd backend
+
 Criar uma venv
 python -m venv venv
 
@@ -22,3 +25,9 @@ python manage.py createsuperuser
 
 rodar api
 python manage.py runserver
+
+Abra outro terminal e digite 
+cd frontend
+
+criar servidor http:
+python -m http.server 8080
