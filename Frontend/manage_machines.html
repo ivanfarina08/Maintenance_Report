@@ -177,6 +177,7 @@
             try {
                 const result = await sendRequest(apiUrlID, 'PATCH', data);
                 console.log("Success:", result);
+                window.location.reload();
                 // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);

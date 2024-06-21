@@ -136,21 +136,23 @@
             try {
                 const result = await sendRequest(apiUrlExecutorReport, 'POST', data);
                 console.log("Success:", result);
+                await updateReport();
                 // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
-                alert("Fetch error:", error);
+                alert('create');
                 // Ações em caso de erro de rede ou outros
             }
         }
 
         async function updateReport() {
-            const data = { 'status': '2' };
+            const data = { "status": "2" };
             try {
                 const result = await sendRequest(apiUrlReport, 'PATCH', data);
                 console.log("Success:", result);
+                window.location.reload();
                 // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
-                alert("Fetch error:", error);
+                alert(error);
                 // Ações em caso de erro de rede ou outros
             }
         }
@@ -160,6 +162,7 @@
             try {
                 const result = await sendRequestDeleteData(apiUrlID, 'DELETE');
                 console.log("Success:", result);
+                window.location.reload();
                 // Ações em caso de sucesso, como exibir uma mensagem ou redirecionar
             } catch (error) {
                 console.error("Fetch error:", error);

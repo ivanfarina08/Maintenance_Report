@@ -19,6 +19,8 @@ class MaintenanceReportSerializer(serializers.ModelSerializer):
         model = MaintenanceReport
         fields = '__all__'
     def validate(self, data):
+        if self.partial:
+            return data 
         if not report_title(data['title']):
             raise serializers.ValidationError({'Title': "The title must be more than 3 characters and less than 45 characters"})
         if not report_description(data['description']):

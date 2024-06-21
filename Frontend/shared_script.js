@@ -71,25 +71,6 @@ async function downloadCSV(csvData, filename) {
     window.URL.revokeObjectURL(url);
 }
 
-
-/*async function sendRequest(url, method, data) {
-    const response = await fetch(url, {
-        method: method,
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-        showMessage(response.headers);
-        throw new Error(`Error: ${response.statusText}`);        
-    }
-
-    showMessage(response);
-    return response.json();
-}*/
-
 async function sendRequest(url, method, data) {
     const response = await fetch(url, {
         method: method,
